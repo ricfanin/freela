@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Freela</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_skip">Salta</string>
+    <string name="onboarding_title">Tutta la tua giornata,\nin un posto solo.</string>
+    <string name="onboarding_subtitle">Freela tiene insieme i tuoi clienti, le scadenze, le ore e i pagamenti. Funziona anche offline.</string>
+    <string name="onboarding_feature1_title">Pipeline visuale</string>
+    <string name="onboarding_feature1_subtitle">Dieci fasi, da lead a cliente ricorrente.</string>
+    <string name="onboarding_feature2_title">Time tracking leggero</string>
+    <string name="onboarding_feature2_subtitle">Avvia un timer, anche se chiudi l\'app.</string>
+    <string name="onboarding_feature3_title">Pagamenti in chiaro</string>
+    <string name="onboarding_feature3_subtitle">Atteso, incassato, in ritardo.</string>
+    <string name="onboarding_cta_start">Inizia</string>
+    <string name="onboarding_cta_login">Ho già un account</string>
+
+    <!-- Nav -->
+    <string name="nav_oggi">Oggi</string>
+    <string name="nav_pipeline">Pipeline</string>
+    <string name="nav_clienti">Clienti</string>
+    <string name="nav_task">Task</string>
+    <string name="nav_finanze">Finanze</string>
+
+    <!-- Oggi -->
+    <string name="oggi_greeting">Buongiorno, %1$s.</string>
+    <string name="oggi_stat_in_ritardo">In ritardo</string>
+    <string name="oggi_stat_attesi">Attesi</string>
+    <string name="oggi_stat_ore_settimana">Ore sett.</string>
+    <string name="oggi_section_contattare">Da contattare</string>
+    <string name="oggi_section_consegnare">Da consegnare</string>
+    <string name="oggi_section_pagamenti">Pagamenti</string>
+    <string name="oggi_suggestion_label">Suggerimento</string>
+    <string name="oggi_suggestion_yes">Sì, scrivi messaggio</string>
+    <string name="oggi_suggestion_later">Più tardi</string>
+
+    <!-- Pipeline -->
+    <string name="pipeline_title">Pipeline</string>
+    <string name="pipeline_subtitle">%1$d clienti in %2$d fasi</string>
+    <string name="pipeline_view_kanban">Kanban</string>
+    <string name="pipeline_view_lista">Lista</string>
+    <string name="pipeline_view_calendario">Cal.</string>
+    <string name="pipeline_empty_column">Trascina qui</string>
+
+    <!-- Clienti -->
+    <string name="clienti_title">Clienti</string>
+    <string name="clienti_subtitle">%1$d attivi · %2$d ricorrenti</string>
+    <string name="clienti_search_placeholder">Cerca nome, telefono, tag…</string>
+    <string name="clienti_filter_all">Tutti</string>
+    <string name="clienti_filter_ricorrenti">Ricorrenti</string>
+    <string name="clienti_filter_in_ritardo">In ritardo</string>
+    <string name="clienti_filter_lead_caldi">Lead caldi</string>
+
+    <!-- Scheda cliente -->
+    <string name="cliente_section_fase">Fase pipeline</string>
+    <string name="cliente_action_cambia">Cambia</string>
+    <string name="cliente_section_prossima">Prossima azione</string>
+    <string name="cliente_action_aggiungi_reminder">Aggiungi reminder →</string>
+    <string name="cliente_section_ultima">Ultima interazione</string>
+    <string name="cliente_section_progetto">Progetto</string>
+    <string name="cliente_progetto_budget">Budget</string>
+    <string name="cliente_progetto_ore_preventivate">Ore preventivate</string>
+    <string name="cliente_section_storico">Storico</string>
+    <string name="cliente_action_aggiungi">+ Aggiungi</string>
+    <string name="cliente_section_finanze">Finanze</string>
+    <string name="cliente_action_tutte">Tutte →</string>
+    <string name="cliente_section_note">Note</string>
+    <string name="cliente_action_chiama">Chiama</string>
+    <string name="cliente_action_scrivi">Scrivi</string>
+    <string name="cliente_action_timer">Timer</string>
+
+    <!-- Task -->
+    <string name="task_title">Task</string>
+    <string name="task_subtitle">%1$d aperti · %2$d urgenti</string>
+    <string name="task_filter_all">Tutti</string>
+    <string name="task_filter_urgenti">Urgenti</string>
+    <string name="task_filter_suggeriti">Suggeriti</string>
+    <string name="task_filter_senza_cliente">Senza cliente</string>
+    <string name="task_section_oggi">Oggi</string>
+    <string name="task_section_settimana">Questa settimana</string>
+    <string name="task_section_suggeriti">Suggeriti</string>
+    <string name="task_badge_suggerito">suggerito</string>
+    <string name="task_priority_alta">priorità alta</string>
+
+    <!-- Timer -->
+    <string name="timer_title">Time tracking</string>
+    <string name="timer_label_running">Sessione in corso</string>
+    <string name="timer_subtitle_started">Iniziata alle %1$s · stop con notifica</string>
+    <string name="timer_section_progetto">Progetto</string>
+    <string name="timer_progress_label">Ore lavorate / preventivate</string>
+    <string name="timer_label_restano">Restano</string>
+    <string name="timer_label_ricavo">Ricavo orario</string>
+    <string name="timer_section_recenti">Sessioni recenti</string>
+
+    <!-- Finanze -->
+    <string name="finanze_title">Finanze</string>
+    <string name="finanze_hero_label">Fatturato del mese</string>
+    <string name="finanze_legend_incassato">Incassato</string>
+    <string name="finanze_legend_attesi">Attesi</string>
+    <string name="finanze_legend_in_ritardo">In ritardo</string>
+    <string name="finanze_section_fatture">Fatture</string>
+    <string name="finanze_filter_tutte">Tutte</string>
+    <string name="finanze_filter_emesse">Emesse</string>
+    <string name="finanze_filter_in_ritardo">In ritardo</string>
+    <string name="finanze_filter_pagate">Pagate</string>
+    <string name="finanze_section_preventivi">Preventivi aperti</string>
+    <string name="finanze_status_pagata">pagata</string>
+    <string name="finanze_status_ritardo">ritardo</string>
+    <string name="finanze_status_emessa">emessa</string>
+
+    <!-- Storico -->
+    <string name="storico_title">Storico</string>
+    <string name="storico_toggle_settimana">Settimana</string>
+    <string name="storico_toggle_mese">Mese</string>
+    <string name="storico_toggle_anno">Anno</string>
+    <string name="storico_stat_ore">Ore</string>
+    <string name="storico_stat_interazioni">Interazioni</string>
+    <string name="storico_stat_incassato">Incassato</string>
+    <string name="storico_section_distribuzione">Distribuzione attenzione</string>
+    <string name="storico_section_top">Top clienti del mese</string>
+    <string name="storico_label_ore_per_cliente">Ore tracciate per cliente</string>
+    <string name="storico_label_pattern">Pattern del mese</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Impostazioni</string>
+    <string name="settings_section_persona">Persona demo</string>
+    <string name="settings_persona_giulia">Giulia · Social Media Manager</string>
+    <string name="settings_persona_luca">Luca · Web Designer</string>
+    <string name="settings_persona_sara">Sara · Fotografa</string>
+    <string name="settings_action_reset">Reseed dati persona</string>
+    <string name="settings_section_tema">Tema</string>
+    <string name="settings_tema_system">Sistema</string>
+    <string name="settings_tema_light">Chiaro</string>
+    <string name="settings_tema_dark">Scuro</string>
+
+    <!-- Pipeline stages -->
+    <string name="stage_nuovo_lead">Nuovo lead</string>
+    <string name="stage_primo_contatto">Primo contatto</string>
+    <string name="stage_preventivo_inviato">Preventivo inviato</string>
+    <string name="stage_in_trattativa">In trattativa</string>
+    <string name="stage_confermato">Confermato</string>
+    <string name="stage_in_corso">In corso</string>
+    <string name="stage_consegnato">Consegnato</string>
+    <string name="stage_in_attesa_pagamento">In attesa pagamento</string>
+    <string name="stage_chiuso">Chiuso</string>
+    <string name="stage_cliente_ricorrente">Cliente ricorrente</string>
+
+    <!-- Short stages (kanban headers) -->
+    <string name="stage_short_nuovo_lead">Lead</string>
+    <string name="stage_short_primo_contatto">Contatto</string>
+    <string name="stage_short_preventivo_inviato">Preventivo</string>
+    <string name="stage_short_in_trattativa">Trattativa</string>
+    <string name="stage_short_confermato">Confermato</string>
+    <string name="stage_short_in_corso">In corso</string>
+    <string name="stage_short_consegnato">Consegnato</string>
+    <string name="stage_short_in_attesa_pagamento">Attesa €</string>
+    <string name="stage_short_chiuso">Chiuso</string>
+    <string name="stage_short_cliente_ricorrente">Ricorrente</string>
+
+    <!-- Notification channels -->
+    <string name="channel_task_reminder_name">Reminder task</string>
+    <string name="channel_task_reminder_desc">Notifiche per task con scadenza</string>
+    <string name="channel_payment_reminder_name">Solleciti pagamento</string>
+    <string name="channel_payment_reminder_desc">Notifiche per fatture in ritardo</string>
+    <string name="channel_timer_name">Timer attivo</string>
+    <string name="channel_timer_desc">Notifica persistente durante la sessione di lavoro</string>
+
+    <!-- Misc -->
+    <string name="todo_coming_soon">Disponibile prossimamente</string>
+    <string name="content_desc_avatar">Avatar di %1$s</string>
+    <string name="content_desc_search">Cerca</string>
+    <string name="content_desc_notifications">Notifiche</string>
+    <string name="content_desc_back">Indietro</string>
+    <string name="content_desc_more">Altro</string>
+    <string name="content_desc_filter">Filtra</string>
+    <string name="content_desc_add">Aggiungi</string>
+</resources>

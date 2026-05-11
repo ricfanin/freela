@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Solo per AndroidManifest / ic_launcher. I colori reali del tema vivono in ui/theme/Color.kt -->
+    <color name="ic_launcher_background">#4C53C9</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
