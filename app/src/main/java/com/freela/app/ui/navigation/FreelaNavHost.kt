@@ -1,0 +1,119 @@
+package com.freela.app.ui.navigation
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.freela.app.ui.components.FreelaBottomNav
+import com.freela.app.ui.components.FreelaTab
+import com.freela.app.ui.screens.boot.BootViewModel
+import com.freela.app.ui.screens.clienti.ClienteDetailScreen
+import com.freela.app.ui.screens.clienti.ClientiScreen
+import com.freela.app.ui.screens.finanze.FinanzeScreen
+import com.freela.app.ui.screens.oggi.OggiScreen
+import com.freela.app.ui.screens.onboarding.OnboardingScreen
+import com.freela.app.ui.screens.pipeline.PipelineScreen
+import com.freela.app.ui.screens.settings.SettingsScreen
+import com.freela.app.ui.screens.storico.StoricoScreen
+import com.freela.app.ui.screens.task.TaskScreen
+import com.freela.app.ui.screens.tracking.TimerScreen
+
+@Composable
+fun FreelaNavHost(
+    bootViewModel: BootViewModel = hiltViewModel(),
+) {
+    val navController = rememberNavController()
+    val bootState by bootViewModel.state.collectAsStateWithLifecycle()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val currentTab: FreelaTab? = topLevelRoutes[currentRoute]
+
+    // Determina la start destination dinamicamente quando il boot è pronto
+    val startDestination = when {
+        !bootState.ready -> Routes.ONBOARDING // splash effetto: mostra onboarding mentre carica
+        bootState.onboardingCompleted -> Routes.OGGI
+        else -> Routes.ONBOARDING
+    }
+
+    Scaffold(
+        bottomBar = {
+            if (currentTab != null) {
+                FreelaBottomNav(
+                    active = currentTab,
+                    onTabClick = { tab ->
+                        navController.navigate(tab.toRoute()) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
+            }
+        },
+    ) { innerPadding: PaddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding),
+        ) {
+            composable(Routes.ONBOARDING) {
+                OnboardingScreen(
+                    onStart = {
+                        navController.navigate(Routes.OGGI) {
+                            popUpTo(Routes.ONBOARDING) { inclusive = true }
+                        }
+                    },
+                )
+            }
+            composable(Routes.OGGI) {
+                OggiScreen(
+                    onNavigateToCliente = { id -> navController.navigate(Routes.clienteDetail(id)) },
+                    onNavigateToFinanze = { navController.navigate(Routes.FINANZE) },
+                    onNavigateToStorico = { navController.navigate(Routes.STORICO) },
+                    onNavigateToSettings = { navController.navigate(Routes.SETTINGS) },
+                    onStartTimer = { navController.navigate(Routes.TIMER) },
+                )
+            }
+            composable(Routes.PIPELINE) {
+                PipelineScreen(
+                    onNavigateToCliente = { id -> navController.navigate(Routes.clienteDetail(id)) },
+                )
+            }
+            composable(Routes.CLIENTI) {
+                ClientiScreen(
+                    onNavigateToCliente = { id -> navController.navigate(Routes.clienteDetail(id)) },
+                )
+            }
+            composable(
+                route = Routes.CLIENTE_DETAIL,
+                arguments = listOf(navArgument(Routes.ARG_CLIENTE_ID) { type = NavType.LongType }),
+            ) {
+                ClienteDetailScreen(
+                    onBack = { navController.popBackStack() },
+                    onStartTimer = { navController.navigate(Routes.TIMER) },
+                )
+            }
+            composable(Routes.TASK) { TaskScreen() }
+            composable(Routes.TIMER) {
+                TimerScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.FINANZE) { FinanzeScreen() }
+            composable(Routes.STORICO) {
+                StoricoScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.SETTINGS) {
+                SettingsScreen(onBack = { navController.popBackStack() })
+            }
+        }
+    }
+}
