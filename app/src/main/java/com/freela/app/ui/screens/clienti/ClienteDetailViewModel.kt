@@ -3,10 +3,12 @@ package com.freela.app.ui.screens.clienti
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.freela.app.data.location.LocationProvider
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.Fattura
 import com.freela.app.domain.model.Interazione
 import com.freela.app.domain.model.Task
+import com.freela.app.domain.model.TipoInterazione
 import com.freela.app.domain.repository.ClienteRepository
 import com.freela.app.domain.repository.FinanzeRepository
 import com.freela.app.domain.repository.InterazioneRepository
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class ClienteDetailUiState(
     val cliente: Cliente? = null,
@@ -34,7 +37,8 @@ data class ClienteDetailUiState(
 class ClienteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     clienteRepo: ClienteRepository,
-    interazioneRepo: InterazioneRepository,
+    private val interazioneRepo: InterazioneRepository,
+    private val locationProvider: LocationProvider,
     taskRepo: TaskRepository,
     timeRepo: TimeTrackingRepository,
     finanzeRepo: FinanzeRepository,
@@ -63,4 +67,41 @@ class ClienteDetailViewModel @Inject constructor(
             )
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ClienteDetailUiState())
+
+    /**
+     * Registra un'interazione (PRD FR-14). Se [conPosizione] è true (solo per MEETING, US-13/FR-15),
+     * acquisisce posizione GPS e indirizzo via reverse geocoding. Il permesso va già concesso dalla UI.
+     */
+    fun aggiungiInterazione(
+        tipo: TipoInterazione,
+        descrizione: String?,
+        durataMinuti: Int?,
+        conPosizione: Boolean,
+    ) {
+        if (clienteId == 0L) return
+        viewModelScope.launch {
+            var lat: Double? = null
+            var lon: Double? = null
+            var indirizzo: String? = null
+            if (conPosizione && tipo == TipoInterazione.MEETING) {
+                locationProvider.posizioneCorrente()?.let { coord ->
+                    lat = coord.latitudine
+                    lon = coord.longitudine
+                    indirizzo = locationProvider.indirizzoDa(coord.latitudine, coord.longitudine)
+                }
+            }
+            interazioneRepo.aggiungi(
+                Interazione(
+                    clienteId = clienteId,
+                    tipo = tipo,
+                    data = System.currentTimeMillis(),
+                    durataMinuti = durataMinuti,
+                    descrizione = descrizione,
+                    latitudine = lat,
+                    longitudine = lon,
+                    indirizzo = indirizzo,
+                ),
+            )
+        }
+    }
 }

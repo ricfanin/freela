@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,8 +39,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
 import com.freela.app.domain.model.Cliente
 import com.freela.app.ui.components.Avatar
-import com.freela.app.ui.components.FreelaChip
-import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.ScreenHeader
 import com.freela.app.ui.theme.Freela
 import com.freela.app.ui.theme.PillShape
@@ -108,20 +103,6 @@ fun ClientiScreen(
                     cursorBrush = androidx.compose.ui.graphics.SolidColor(tokens.accentBase),
                 )
             }
-            Icon(Icons.Outlined.FilterAlt, contentDescription = stringResource(R.string.content_desc_filter), tint = tokens.muted, modifier = Modifier.size(16.dp))
-        }
-
-        // Filter chips
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 22.dp, vertical = 4.dp)
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            FreelaChip(stringResource(R.string.clienti_filter_all), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.clienti_filter_ricorrenti), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.clienti_filter_in_ritardo), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.clienti_filter_lead_caldi), tone = ChipTone.Neutral)
         }
 
         Spacer(Modifier.height(8.dp))

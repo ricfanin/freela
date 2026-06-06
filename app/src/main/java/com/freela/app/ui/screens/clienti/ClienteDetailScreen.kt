@@ -27,8 +27,23 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.core.content.ContextCompat
+import com.freela.app.domain.model.TipoInterazione
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -73,6 +88,7 @@ fun ClienteDetailScreen(
     val cliente = state.cliente ?: return
     val ctx = LocalContext.current
     val stageC = stageColor(cliente.faseCorrente)
+    var showInterazioneDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -188,7 +204,7 @@ fun ClienteDetailScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Box(Modifier.size(8.dp).clip(CircleShape).background(stageC))
-                            Text(ctx.getString(cliente.faseCorrente.labelRes), color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                            Text(ctx.getString(cliente.faseCorrente.labelRes), color = tokens.ink, fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold)
                         }
                         Text(
                             "${cliente.faseCorrente.ordine + 1} / 10",
@@ -196,7 +212,7 @@ fun ClienteDetailScreen(
                             style = tokens.typeExtras.monoMeta,
                         )
                     }
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(16.dp))
                     PipelineRibbon(currentStage = cliente.faseCorrente)
                 }
             }
@@ -217,6 +233,7 @@ fun ClienteDetailScreen(
                         state.prossimoTask?.titolo ?: "—",
                         color = tokens.ink,
                         fontSize = 14.sp,
+                        lineHeight = 18.sp,
                         fontWeight = FontWeight.Medium,
                     )
                     Spacer(Modifier.height(6.dp))
@@ -224,6 +241,7 @@ fun ClienteDetailScreen(
                         stringResource(R.string.cliente_action_aggiungi_reminder),
                         color = tokens.accentBase,
                         fontSize = 12.sp,
+                        lineHeight = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
                 }
@@ -239,11 +257,12 @@ fun ClienteDetailScreen(
                         if (ultima != null) "${ultima.tipo.name.lowercase().replaceFirstChar { it.uppercase() }} · ${formatRel(ultima.data)}" else "—",
                         color = tokens.ink,
                         fontSize = 14.sp,
+                        lineHeight = 18.sp,
                         fontWeight = FontWeight.Medium,
                     )
                     Spacer(Modifier.height(6.dp))
                     ultima?.durataMinuti?.let {
-                        Text("$it min", color = tokens.muted, fontSize = 12.sp)
+                        Text("$it min", color = tokens.muted, fontSize = 12.sp, lineHeight = 16.sp)
                     }
                 }
             }
@@ -258,7 +277,7 @@ fun ClienteDetailScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.Bottom,
                         ) {
-                            Text(stringResource(R.string.cliente_progetto_budget), color = tokens.muted, fontSize = 13.sp)
+                            Text(stringResource(R.string.cliente_progetto_budget), color = tokens.muted, fontSize = 13.sp, lineHeight = 17.sp)
                             Text(
                                 "€${String.format(Locale.ITALIAN, "%,.0f", budget)}",
                                 color = tokens.ink,
@@ -271,7 +290,7 @@ fun ClienteDetailScreen(
                         val orePrev = cliente.orePreventivate ?: 0f
                         val oreReal = state.oreReali
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text(stringResource(R.string.cliente_progetto_ore_preventivate), color = tokens.muted, fontSize = 12.sp)
+                            Text(stringResource(R.string.cliente_progetto_ore_preventivate), color = tokens.muted, fontSize = 12.sp, lineHeight = 16.sp)
                             Text(
                                 "${String.format(Locale.ITALIAN, "%.1f", oreReal)}h / ${String.format(Locale.ITALIAN, "%.0f", orePrev)}h",
                                 color = tokens.ink,
@@ -287,6 +306,7 @@ fun ClienteDetailScreen(
                                 "+${String.format(Locale.ITALIAN, "%.1f", oreReal - orePrev)}h oltre preventivo",
                                 color = tokens.danger,
                                 fontSize = 11.5f.sp,
+                                lineHeight = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
@@ -299,7 +319,7 @@ fun ClienteDetailScreen(
                 SectionHead(
                     label = stringResource(R.string.cliente_section_storico),
                     actionText = stringResource(R.string.cliente_action_aggiungi),
-                    onActionClick = { /* TODO sheet aggiungi interazione */ },
+                    onActionClick = { showInterazioneDialog = true },
                 )
                 TimelineInterazioni(interazioni = state.timeline.take(5))
             }
@@ -326,7 +346,7 @@ fun ClienteDetailScreen(
                                             fontWeight = FontWeight.SemiBold,
                                             style = tokens.typeExtras.monoMeta.copy(fontSize = 13.5f.sp, fontWeight = FontWeight.SemiBold),
                                         )
-                                        Text("Scad. ${formatDate(f.dataScadenza)}", color = tokens.muted, fontSize = 11.5f.sp)
+                                        Text("Scad. ${formatDate(f.dataScadenza)}", color = tokens.muted, fontSize = 11.5f.sp, lineHeight = 15.sp)
                                     }
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                         val statoUi = f.statoUi()
@@ -367,7 +387,110 @@ fun ClienteDetailScreen(
                 }
             }
         }
+
+        if (showInterazioneDialog) {
+            RegistraInterazioneDialog(
+                onDismiss = { showInterazioneDialog = false },
+                onConferma = { tipo, descrizione, durata, conGps ->
+                    viewModel.aggiungiInterazione(tipo, descrizione, durata, conGps)
+                    showInterazioneDialog = false
+                },
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun RegistraInterazioneDialog(
+    onDismiss: () -> Unit,
+    onConferma: (TipoInterazione, String?, Int?, Boolean) -> Unit,
+) {
+    val tokens = Freela.tokens
+    val ctx = LocalContext.current
+    var tipo by remember { mutableStateOf(TipoInterazione.CALL) }
+    var descrizione by remember { mutableStateOf("") }
+    var durata by remember { mutableStateOf("") }
+    var gpsAbilitato by remember { mutableStateOf(false) }
+
+    val permLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { concesso -> gpsAbilitato = concesso }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = {
+                onConferma(
+                    tipo,
+                    descrizione.ifBlank { null },
+                    durata.toIntOrNull(),
+                    gpsAbilitato && tipo == TipoInterazione.MEETING,
+                )
+            }) { Text(stringResource(R.string.interazione_salva)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.interazione_annulla)) }
+        },
+        title = { Text(stringResource(R.string.interazione_titolo)) },
+        text = {
+            Column {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    TipoInterazione.entries.forEach { t ->
+                        FreelaChip(
+                            t.name.lowercase().replaceFirstChar { it.uppercase() },
+                            tone = if (t == tipo) ChipTone.Accent else ChipTone.Neutral,
+                            size = ChipSize.Small,
+                            modifier = Modifier.clickable {
+                                tipo = t
+                                if (t != TipoInterazione.MEETING) gpsAbilitato = false
+                            },
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = descrizione,
+                    onValueChange = { descrizione = it },
+                    label = { Text(stringResource(R.string.interazione_descrizione)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = durata,
+                    onValueChange = { v -> durata = v.filter { it.isDigit() } },
+                    label = { Text(stringResource(R.string.interazione_durata)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                )
+                if (tipo == TipoInterazione.MEETING) {
+                    Spacer(Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(stringResource(R.string.interazione_tag_gps), color = tokens.ink, fontSize = 14.sp)
+                        Switch(
+                            checked = gpsAbilitato,
+                            onCheckedChange = { abilita ->
+                                if (abilita) {
+                                    val concesso = ContextCompat.checkSelfPermission(
+                                        ctx, Manifest.permission.ACCESS_FINE_LOCATION,
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                    if (concesso) gpsAbilitato = true
+                                    else permLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                                } else {
+                                    gpsAbilitato = false
+                                }
+                            },
+                        )
+                    }
+                }
+            }
+        },
+    )
 }
 
 @Composable
