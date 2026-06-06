@@ -1,25 +1,133 @@
 package com.freela.app.service
 
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
+import android.os.Build
 import android.os.IBinder
+import androidx.core.app.ServiceCompat
+import com.freela.app.MainActivity
+import com.freela.app.domain.repository.TimeTrackingRepository
+import com.freela.app.notification.NotificationHelper
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
- * Stub del foreground service per il timer di time tracking (PRD FR-18, NFR-17).
+ * Foreground Service per il timer di time tracking (PRD FR-18, NFR-17).
  *
- * Implementazione completa nella fase 8 del PRD §11.4:
- * - notifica persistente sul canale [com.freela.app.notification.NotificationHelper.CHANNEL_TIMER]
- * - aggiornamento elapsed ogni 1s
- * - azione "Stop" che chiude il service e persiste la sessione su Room
+ * - START: persiste l'avvio della sessione su Room e mostra una notifica persistente
+ *   con cronometro sul canale [NotificationHelper.CHANNEL_TIMER].
+ * - STOP: chiude la sessione in corso (anche via azione "Stop" della notifica) e si ferma.
  *
- * Per ora la classe esiste perché è dichiarata nel Manifest e l'app deve installarsi.
+ * Il timer continua a girare quando l'app è in background grazie al foreground service.
  */
+@AndroidEntryPoint
 class TimerForegroundService : Service() {
 
+    @Inject lateinit var timeRepo: TimeTrackingRepository
+    @Inject lateinit var notificationHelper: NotificationHelper
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // TODO PRD §11.4 fase 8: startForeground(..., buildTimerNotification(...))
+        when (intent?.action) {
+            ACTION_START -> handleStart(intent)
+            ACTION_STOP -> handleStop()
+        }
         return START_NOT_STICKY
     }
 
+    override fun onDestroy() {
+        scope.cancel()
+        super.onDestroy()
+    }
+
+    private fun handleStart(intent: Intent) {
+        val clienteId = intent.getLongExtra(EXTRA_CLIENTE_ID, -1L)
+        val clienteNome = intent.getStringExtra(EXTRA_CLIENTE_NOME) ?: "Sessione di lavoro"
+        val descrizione = intent.getStringExtra(EXTRA_DESCRIZIONE)
+        val inizio = System.currentTimeMillis()
+
+        // startForeground entro pochi secondi: notifica subito, persistenza in coroutine.
+        startForegroundCompat(buildNotification(clienteNome, inizio))
+
+        if (clienteId > 0L) {
+            scope.launch { timeRepo.avvia(clienteId, descrizione) }
+        }
+    }
+
+    private fun handleStop() {
+        scope.launch {
+            timeRepo.osservaInCorso().first()?.let { timeRepo.ferma(it.id) }
+            ServiceCompat.stopForeground(this@TimerForegroundService, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
+    }
+
+    private fun buildNotification(titolo: String, inizio: Long) =
+        notificationHelper.buildTimerNotification(
+            titolo = titolo,
+            inizioMillis = inizio,
+            stopIntent = PendingIntent.getService(
+                this,
+                0,
+                Intent(this, TimerForegroundService::class.java).apply { action = ACTION_STOP },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+            contentIntent = PendingIntent.getActivity(
+                this,
+                0,
+                Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                },
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+            ),
+        )
+
+    private fun startForegroundCompat(notification: android.app.Notification) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(
+                NotificationHelper.TIMER_NOTIFICATION_ID,
+                notification,
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+            )
+        } else {
+            startForeground(NotificationHelper.TIMER_NOTIFICATION_ID, notification)
+        }
+    }
+
     override fun onBind(intent: Intent?): IBinder? = null
+
+    companion object {
+        const val ACTION_START = "com.freela.app.action.TIMER_START"
+        const val ACTION_STOP = "com.freela.app.action.TIMER_STOP"
+        const val EXTRA_CLIENTE_ID = "cliente_id"
+        const val EXTRA_CLIENTE_NOME = "cliente_nome"
+        const val EXTRA_DESCRIZIONE = "descrizione"
+
+        /** Avvia il timer per il cliente indicato (usa startForegroundService). */
+        fun avvia(context: Context, clienteId: Long, clienteNome: String, descrizione: String? = null) {
+            val intent = Intent(context, TimerForegroundService::class.java).apply {
+                action = ACTION_START
+                putExtra(EXTRA_CLIENTE_ID, clienteId)
+                putExtra(EXTRA_CLIENTE_NOME, clienteNome)
+                putExtra(EXTRA_DESCRIZIONE, descrizione)
+            }
+            androidx.core.content.ContextCompat.startForegroundService(context, intent)
+        }
+
+        /** Ferma il timer in corso. */
+        fun ferma(context: Context) {
+            val intent = Intent(context, TimerForegroundService::class.java).apply { action = ACTION_STOP }
+            androidx.core.content.ContextCompat.startForegroundService(context, intent)
+        }
+    }
 }

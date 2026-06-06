@@ -3,18 +3,47 @@ package com.freela.app.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.freela.app.notification.NotificationHelper
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import com.freela.app.domain.repository.TaskRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 /**
- * Stub receiver per i reminder schedulati via AlarmManager (PRD FR-10).
+ * Receiver per i reminder schedulati via AlarmManager (PRD FR-10).
  *
- * Implementazione completa nella fase 6 del PRD §11.4:
- * - leggere taskId dall'intent extra
- * - costruire una notifica sul canale CHANNEL_TASK_REMINDER
- * - pending intent al dettaglio task
+ * Allo scattare dell'alarm legge il taskId dall'intent, recupera il task e
+ * mostra una notifica sul canale CHANNEL_TASK_REMINDER. Se il task nel frattempo
+ * è stato completato o eliminato, non notifica nulla.
  */
+@AndroidEntryPoint
 class TaskReminderReceiver : BroadcastReceiver() {
+
+    @Inject lateinit var taskRepository: TaskRepository
+    @Inject lateinit var notificationHelper: NotificationHelper
+
     override fun onReceive(context: Context, intent: Intent) {
-        // TODO PRD §11.4 fase 6
+        val taskId = intent.getLongExtra(EXTRA_TASK_ID, -1L)
+        if (taskId <= 0L) return
+
+        val pending = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val task = taskRepository.osservaTutti().first().firstOrNull { it.id == taskId }
+                if (task != null && !task.completato) {
+                    notificationHelper.notificaTaskReminder(
+                        taskId = task.id,
+                        titolo = task.titolo,
+                        sottotitolo = task.descrizione,
+                    )
+                }
+            } finally {
+                pending.finish()
+            }
+        }
     }
 
     companion object {
