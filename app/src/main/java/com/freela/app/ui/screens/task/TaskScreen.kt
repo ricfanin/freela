@@ -74,15 +74,6 @@ fun TaskScreen(
             },
         )
 
-        Row(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            FreelaChip(stringResource(R.string.task_filter_all), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.task_filter_urgenti), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.task_filter_suggeriti), tone = ChipTone.Neutral)
-        }
-
         TaskGruppo.entries.forEach { gruppo ->
             val righe = state.righe.filter { it.gruppo == gruppo }
             if (righe.isEmpty()) return@forEach

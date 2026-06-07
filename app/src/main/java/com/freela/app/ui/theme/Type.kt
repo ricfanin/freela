@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.googlefonts.Font as GoogleFontFont
 import androidx.compose.ui.text.googlefonts.GoogleFont
+import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.freela.app.R
 
@@ -147,6 +148,7 @@ val DefaultFreelaTypeExtras = FreelaTypeExtras(
         fontFamily = MonoWithFallback,
         fontWeight = FontWeight.Bold,
         fontSize = 11.sp,
+        lineHeight = 1.45.em,
         letterSpacing = 0.10f.sp,
         fontStyle = FontStyle.Normal,
     ),
@@ -178,6 +180,7 @@ val DefaultFreelaTypeExtras = FreelaTypeExtras(
         fontFamily = MonoWithFallback,
         fontWeight = FontWeight.Medium,
         fontSize = 11.5f.sp,
+        lineHeight = 1.4.em,
         letterSpacing = 0.sp,
         fontFeatureSettings = "tnum",
     ),

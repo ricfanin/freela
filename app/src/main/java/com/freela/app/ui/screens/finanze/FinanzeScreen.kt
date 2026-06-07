@@ -129,12 +129,7 @@ fun FinanzeScreen(
         // Fatture
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 12.dp)) {
             SectionHead(label = stringResource(R.string.finanze_section_fatture))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 12.dp)) {
-                FreelaChip(stringResource(R.string.finanze_filter_tutte), tone = ChipTone.Accent, dot = true)
-                FreelaChip(stringResource(R.string.finanze_filter_emesse), tone = ChipTone.Neutral)
-                FreelaChip(stringResource(R.string.finanze_filter_in_ritardo), tone = ChipTone.Neutral)
-                FreelaChip(stringResource(R.string.finanze_filter_pagate), tone = ChipTone.Neutral)
-            }
+            Spacer(Modifier.height(12.dp))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
                 Column {
                     state.fatture.forEachIndexed { i, riga ->

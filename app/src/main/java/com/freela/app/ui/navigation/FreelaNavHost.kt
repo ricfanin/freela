@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -30,6 +31,8 @@ import com.freela.app.ui.screens.tracking.TimerScreen
 
 @Composable
 fun FreelaNavHost(
+    deepLinkDestination: String? = null,
+    onDeepLinkHandled: () -> Unit = {},
     bootViewModel: BootViewModel = hiltViewModel(),
 ) {
     val navController = rememberNavController()
@@ -43,6 +46,16 @@ fun FreelaNavHost(
         !bootState.ready -> Routes.ONBOARDING // splash effetto: mostra onboarding mentre carica
         bootState.onboardingCompleted -> Routes.OGGI
         else -> Routes.ONBOARDING
+    }
+
+    // Deep-link dalle notifiche: naviga verso la destinazione richiesta una volta
+    // che il boot è pronto e l'onboarding è completato.
+    LaunchedEffect(deepLinkDestination, bootState.ready) {
+        val dest = deepLinkDestination
+        if (dest != null && bootState.ready && bootState.onboardingCompleted) {
+            navController.navigate(dest) { launchSingleTop = true }
+            onDeepLinkHandled()
+        }
     }
 
     Scaffold(

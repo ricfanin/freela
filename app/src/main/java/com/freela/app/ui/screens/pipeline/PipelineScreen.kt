@@ -23,7 +23,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,15 +73,6 @@ fun PipelineScreen(
                     modifier = Modifier
                         .size(36.dp)
                         .clip(CircleShape)
-                        .border(width = 1.dp, color = tokens.line, shape = CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Icons.Outlined.FilterAlt, contentDescription = stringResource(R.string.content_desc_filter), tint = tokens.muted, modifier = Modifier.size(16.dp))
-                }
-                Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
                         .background(tokens.accentBase),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -103,16 +93,17 @@ fun PipelineScreen(
 
         Spacer(Modifier.height(14.dp))
 
-        // Kanban
-        LazyRow(
+        // Pipeline verticale: ogni fase è una riga (titolo a sinistra, clienti in scroll orizzontale di fianco).
+        // L'utente scorre in giù per vedere tutte le fasi.
+        LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 22.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             items(FasePipeline.ordered) { fase ->
-                KanbanColumn(
+                StageRow(
                     fase = fase,
                     clienti = state.clientiPerFase[fase] ?: emptyList(),
                     onTapCliente = onNavigateToCliente,
@@ -123,7 +114,7 @@ fun PipelineScreen(
 }
 
 @Composable
-private fun KanbanColumn(
+private fun StageRow(
     fase: FasePipeline,
     clienti: List<Cliente>,
     onTapCliente: (Long) -> Unit,
@@ -132,14 +123,17 @@ private fun KanbanColumn(
     val ctx = LocalContext.current
     val color = stageColor(fase)
 
-    Column(
-        modifier = Modifier.width(240.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 2.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        // Titolo di fianco alla riga di clienti
+        Column(
+            modifier = Modifier
+                .width(96.dp)
+                .padding(start = 22.dp, top = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Box(Modifier.size(6.dp).clip(CircleShape).background(color))
@@ -159,20 +153,22 @@ private fun KanbanColumn(
         if (clienti.isEmpty()) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(end = 22.dp)
                     .border(width = 1.5.dp, color = tokens.line, shape = RoundedCornerShape(18.dp))
-                    .padding(22.dp),
+                    .padding(vertical = 18.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(stringResource(R.string.pipeline_empty_column), color = tokens.faint, fontSize = 12.sp)
             }
         } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxWidth(),
+            LazyRow(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(end = 22.dp),
             ) {
                 items(clienti) { c ->
-                    PipelineCard(c, color, onTap = { onTapCliente(c.id) })
+                    PipelineCard(c, color, onTap = { onTapCliente(c.id) }, modifier = Modifier.width(220.dp))
                 }
             }
         }
@@ -180,11 +176,11 @@ private fun KanbanColumn(
 }
 
 @Composable
-private fun PipelineCard(c: Cliente, stageC: Color, onTap: () -> Unit) {
+private fun PipelineCard(c: Cliente, stageC: Color, onTap: () -> Unit, modifier: Modifier = Modifier) {
     val tokens = Freela.tokens
     val bg = lerp(tokens.surface, stageC, 0.06f)
     FreelaCard(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         background = bg,
         padding = PaddingValues(0.dp),
         onClick = onTap,
