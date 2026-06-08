@@ -106,6 +106,7 @@ dependencies {
 
     // Play services
     implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Tests
     testImplementation(libs.junit)

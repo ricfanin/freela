@@ -43,7 +43,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Stub Foreground Service: implementazione completa nella fase 8 del PRD §11.4. -->
+        <!-- Foreground Service per il timer di time tracking (FR-18, NFR-17). -->
         <service
             android:name=".service.TimerForegroundService"
             android:exported="false"
@@ -53,7 +53,7 @@
                 android:value="time tracking sessions for freelance work" />
         </service>
 
-        <!-- Stub receiver per BOOT_COMPLETED (FR-11). -->
+        <!-- Riarma i reminder dopo il riavvio del dispositivo (FR-11). -->
         <receiver
             android:name=".receiver.BootCompletedReceiver"
             android:exported="true">
@@ -62,10 +62,22 @@
             </intent-filter>
         </receiver>
 
-        <!-- Stub receiver per AlarmManager reminder task (FR-10). -->
+        <!-- Riceve gli alarm dei reminder task (FR-10). -->
         <receiver
             android:name=".receiver.TaskReminderReceiver"
             android:exported="false" />
+
+        <!-- On-demand initialization di WorkManager: la config arriva da FreelaApp (Hilt). -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
 
     </application>
 

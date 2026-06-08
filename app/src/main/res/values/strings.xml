@@ -14,6 +14,53 @@
     <string name="onboarding_feature3_subtitle">Atteso, incassato, in ritardo.</string>
     <string name="onboarding_cta_start">Inizia</string>
     <string name="onboarding_cta_login">Ho già un account</string>
+    <!-- Onboarding · navigazione step -->
+    <string name="onboarding_back">Indietro</string>
+    <string name="onboarding_cta_next">Avanti</string>
+    <string name="onboarding_cta_notifiche">Attiva notifiche</string>
+    <string name="onboarding_cta_open">Apri Freela</string>
+    <string name="onboarding_notifiche_not_now">Non ora</string>
+    <!-- Onboarding · step Profilo -->
+    <string name="onb_profilo_title">Iniziamo.</string>
+    <string name="onb_profilo_subtitle">Servono tre cose. Cambierai tutto in qualsiasi momento.</string>
+    <string name="onb_profilo_name_label">Come ti chiami</string>
+    <string name="onb_profilo_name_placeholder">Il tuo nome</string>
+    <string name="onb_profilo_name_clear">Cancella</string>
+    <string name="onb_profilo_work_label">Che lavoro fai</string>
+    <string name="onb_profilo_currency_label">Valuta</string>
+    <string name="onb_role_designer">Graphic designer</string>
+    <string name="onb_role_developer">Sviluppatore</string>
+    <string name="onb_role_fotografo">Fotografo</string>
+    <string name="onb_role_copywriter">Copywriter</string>
+    <string name="onb_role_consulente">Consulente</string>
+    <string name="onb_role_traduttore">Traduttore</string>
+    <string name="onb_role_architetto">Architetto</string>
+    <string name="onb_role_altro">Altro</string>
+    <!-- Onboarding · step Notifiche -->
+    <string name="onb_notif_title">Le scadenze, prima\nche diventino tardi.</string>
+    <string name="onb_notif_subtitle">Niente spam. Solo i follow-up che hai impostato e le fatture in scadenza.</string>
+    <string name="onb_notif_sample1_tipo">Follow-up</string>
+    <string name="onb_notif_sample1_title">Sollecitare un cliente</string>
+    <string name="onb_notif_sample1_sub">preventivo inviato 5 giorni fa</string>
+    <string name="onb_notif_sample2_tipo">Fattura in ritardo</string>
+    <string name="onb_notif_sample2_title">Pagamento atteso</string>
+    <string name="onb_notif_sample2_sub">attesi da 18 giorni — invia sollecito?</string>
+    <string name="onb_notif_sample3_tipo">Scadenza</string>
+    <string name="onb_notif_sample3_title">Consegna domani</string>
+    <string name="onb_notif_sample3_sub">domani · 17:00</string>
+    <!-- Onboarding · step Pronto -->
+    <string name="onb_pronto_title">Pronti, %1$s.</string>
+    <string name="onb_pronto_subtitle">Ecco come abbiamo impostato Freela per te. Puoi cambiare tutto dalle impostazioni.</string>
+    <string name="onb_pronto_recap_nome">Nome</string>
+    <string name="onb_pronto_recap_lavoro">Lavoro</string>
+    <string name="onb_pronto_recap_notifiche">Notifiche</string>
+    <string name="onb_pronto_recap_valuta">Valuta</string>
+    <string name="onb_pronto_recap_backup">Backup</string>
+    <string name="onb_pronto_recap_sync">Sincronizzazione</string>
+    <string name="onb_pronto_notifiche_on">Attive</string>
+    <string name="onb_pronto_notifiche_off">Disattivate</string>
+    <string name="onb_pronto_backup_value">Solo dispositivo</string>
+    <string name="onb_pronto_sync_value">Offline-first</string>
 
     <!-- Nav -->
     <string name="nav_oggi">Oggi</string>
@@ -21,6 +68,10 @@
     <string name="nav_clienti">Clienti</string>
     <string name="nav_task">Task</string>
     <string name="nav_finanze">Finanze</string>
+
+    <!-- Placeholder (build demo) -->
+    <string name="placeholder_coming_soon">In arrivo</string>
+    <string name="placeholder_coming_soon_sub">Questa sezione sarà disponibile a breve.</string>
 
     <!-- Oggi -->
     <string name="oggi_greeting">Buongiorno, %1$s.</string>
@@ -69,6 +120,14 @@
     <string name="cliente_action_scrivi">Scrivi</string>
     <string name="cliente_action_timer">Timer</string>
 
+    <!-- Registra interazione -->
+    <string name="interazione_titolo">Registra interazione</string>
+    <string name="interazione_descrizione">Descrizione</string>
+    <string name="interazione_durata">Durata (min)</string>
+    <string name="interazione_tag_gps">Tagga posizione GPS</string>
+    <string name="interazione_salva">Salva</string>
+    <string name="interazione_annulla">Annulla</string>
+
     <!-- Task -->
     <string name="task_title">Task</string>
     <string name="task_subtitle">%1$d aperti · %2$d urgenti</string>
@@ -91,6 +150,9 @@
     <string name="timer_label_restano">Restano</string>
     <string name="timer_label_ricavo">Ricavo orario</string>
     <string name="timer_section_recenti">Sessioni recenti</string>
+    <string name="timer_label_idle">Nessuna sessione</string>
+    <string name="timer_idle_hint">Avvia il timer per iniziare a tracciare.</string>
+    <string name="timer_no_activity">Tocca play per avviare</string>
 
     <!-- Finanze -->
     <string name="finanze_title">Finanze</string>
@@ -164,6 +226,9 @@
     <string name="channel_payment_reminder_desc">Notifiche per fatture in ritardo</string>
     <string name="channel_timer_name">Timer attivo</string>
     <string name="channel_timer_desc">Notifica persistente durante la sessione di lavoro</string>
+    <string name="timer_notification_text">Sessione di lavoro in corso</string>
+    <string name="timer_action_stop">Stop</string>
+    <string name="task_reminder_default_title">Promemoria task</string>
 
     <!-- Misc -->
     <string name="todo_coming_soon">Disponibile prossimamente</string>
