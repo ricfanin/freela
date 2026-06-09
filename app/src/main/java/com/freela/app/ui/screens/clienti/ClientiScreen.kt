@@ -12,14 +12,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -123,10 +126,13 @@ fun ClientiScreen(
                 }
                 items(clienti.size) { i ->
                     val c = clienti[i]
-                    val last = i == clienti.size - 1
-                    ClienteRow(c, onClick = { onNavigateToCliente(c.id) })
-                    if (!last) {
-                        Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(tokens.lineSoft))
+                    Surface(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        color = tokens.surface,
+                        shadowElevation = 2.dp,
+                    ) {
+                        ClienteRow(c, onClick = { onNavigateToCliente(c.id) })
                     }
                 }
             }
@@ -142,15 +148,15 @@ private fun ClienteRow(c: Cliente, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(horizontal = 4.dp, vertical = 14.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Avatar(name = c.nome, size = 42.dp)
         Column(modifier = Modifier.weight(1f)) {
-            Text(c.nome, color = tokens.ink, fontSize = 15.sp, fontWeight = FontWeight.SemiBold)
+            Text(c.nome, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Box(Modifier.size(5.dp).clip(CircleShape).background(stageColor(c.faseCorrente)))
+                Box(Modifier.width(5.dp).height(18.dp).clip(RoundedCornerShape(2.5.dp)).background(stageColor(c.faseCorrente)))
                 Text(ctx.getString(c.faseCorrente.shortRes), color = tokens.muted, fontSize = 12.5f.sp, style = MaterialTheme.typography.bodySmall)
             }
         }
