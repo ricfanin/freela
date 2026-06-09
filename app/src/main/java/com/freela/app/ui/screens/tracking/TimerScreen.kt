@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material3.Icon
@@ -160,6 +161,14 @@ fun TimerScreen(
                         }
                     } else {
                         Text("Nessun cliente selezionato", color = tokens.muted, modifier = Modifier.weight(1f))
+                    }
+                    if (c != null) {
+                        Icon(
+                            Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = tokens.faint,
+                            modifier = Modifier.size(16.dp),
+                        )
                     }
                 }
             }
