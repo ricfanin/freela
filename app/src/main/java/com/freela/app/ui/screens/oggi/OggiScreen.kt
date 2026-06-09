@@ -2,6 +2,7 @@ package com.freela.app.ui.screens.oggi
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -329,6 +330,7 @@ private fun IconCircle(
             .size(36.dp)
             .clip(CircleShape)
             .border(width = 1.dp, color = tokens.line, shape = CircleShape)
+            .clickable(onClick = onClick)
             .padding(8.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -344,8 +346,6 @@ private fun IconCircle(
             )
         }
     }
-    // Note: onClick handler omesso per semplificare il design come mostrato nel handoff (decorativi nel mock).
-    // In produzione si farebbe Modifier.clickable.
 }
 
 private fun formatMoney(v: Double): String =
