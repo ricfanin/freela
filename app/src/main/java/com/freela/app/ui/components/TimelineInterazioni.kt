@@ -27,6 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.freela.app.domain.model.Interazione
 import com.freela.app.domain.model.TipoInterazione
@@ -45,7 +47,23 @@ fun TimelineInterazioni(
     modifier: Modifier = Modifier,
 ) {
     val tokens = Freela.tokens
-    Column(modifier = modifier.fillMaxWidth()) {
+    val lineColor = tokens.lineSoft
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .drawBehind {
+                // Linea verticale che connette i bubble (centro bubble 36dp = 18dp).
+                val x = 18.dp.toPx()
+                val top = 18.dp.toPx()
+                val bottom = (size.height - 18.dp.toPx()).coerceAtLeast(top)
+                drawLine(
+                    color = lineColor,
+                    start = Offset(x, top),
+                    end = Offset(x, bottom),
+                    strokeWidth = 1.dp.toPx(),
+                )
+            },
+    ) {
         interazioni.forEachIndexed { idx, it ->
             Row(
                 modifier = Modifier
