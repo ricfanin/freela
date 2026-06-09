@@ -157,7 +157,18 @@ fun OnboardingScreen(
             } else {
                 Logotype()
             }
-            Spacer(Modifier.width(1.dp))
+            if (!isLast) {
+                Text(
+                    text = stringResource(R.string.onboarding_skip),
+                    color = tokens.muted,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .clickable { viewModel.completaOnboarding(onStart) }
+                        .padding(6.dp),
+                )
+            } else {
+                Spacer(Modifier.width(1.dp))
+            }
         }
 
         // Contenuto dello step corrente
