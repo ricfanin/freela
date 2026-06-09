@@ -182,6 +182,7 @@
     <string name="storico_section_top">Top clienti del mese</string>
     <string name="storico_label_ore_per_cliente">Ore tracciate per cliente</string>
     <string name="storico_label_pattern">Pattern del mese</string>
+    <string name="storico_pattern_text">Questo mese hai dedicato più ore a %1$s, circa %2$s ore di lavoro.</string>
 
     <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
