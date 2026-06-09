@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -74,6 +75,19 @@ fun TaskScreen(
             },
         )
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 22.dp)
+                .padding(bottom = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            FreelaChip(stringResource(R.string.task_filter_all), tone = ChipTone.Accent, dot = true)
+            FreelaChip(stringResource(R.string.task_filter_urgenti), tone = ChipTone.Neutral)
+            FreelaChip(stringResource(R.string.task_filter_suggeriti), tone = ChipTone.Neutral)
+            FreelaChip(stringResource(R.string.task_filter_senza_cliente), tone = ChipTone.Neutral)
+        }
+
         TaskGruppo.entries.forEach { gruppo ->
             val righe = state.righe.filter { it.gruppo == gruppo }
             if (righe.isEmpty()) return@forEach
@@ -108,7 +122,7 @@ private fun TaskRow(r: TaskRiga, onCheck: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (sugg) tokens.surfaceLow else Color.Transparent)
+            .background(if (sugg) tokens.accentSofter else Color.Transparent)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
@@ -152,5 +166,11 @@ private fun TaskRow(r: TaskRiga, onCheck: () -> Unit) {
                 }
             }
         }
+        Icon(
+            Icons.Outlined.ChevronRight,
+            contentDescription = null,
+            tint = tokens.faint,
+            modifier = Modifier.size(14.dp).align(Alignment.CenterVertically),
+        )
     }
 }
