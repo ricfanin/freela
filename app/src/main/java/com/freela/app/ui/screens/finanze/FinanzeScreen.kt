@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -113,7 +114,13 @@ fun FinanzeScreen(
                             .background(tokens.lineSoft),
                     ) {
                         if (state.incassato > 0) {
-                            Box(Modifier.fillMaxWidth((state.incassato / total).toFloat()).background(tokens.success))
+                            Box(Modifier.fillMaxWidth((state.incassato / total).toFloat()).fillMaxHeight().background(tokens.success))
+                        }
+                        if (state.attesi > 0) {
+                            Box(Modifier.fillMaxWidth((state.attesi / total).toFloat()).fillMaxHeight().background(tokens.accentBase))
+                        }
+                        if (state.inRitardo > 0) {
+                            Box(Modifier.fillMaxWidth((state.inRitardo / total).toFloat()).fillMaxHeight().background(tokens.danger))
                         }
                     }
                     Spacer(Modifier.height(14.dp))
@@ -129,6 +136,15 @@ fun FinanzeScreen(
         // Fatture
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 12.dp)) {
             SectionHead(label = stringResource(R.string.finanze_section_fatture))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FreelaChip(stringResource(R.string.finanze_filter_tutte), tone = ChipTone.Accent, dot = true)
+                FreelaChip(stringResource(R.string.finanze_filter_emesse), tone = ChipTone.Neutral)
+                FreelaChip(stringResource(R.string.finanze_filter_in_ritardo), tone = ChipTone.Neutral)
+                FreelaChip(stringResource(R.string.finanze_filter_pagate), tone = ChipTone.Neutral)
+            }
             Spacer(Modifier.height(12.dp))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
                 Column {
