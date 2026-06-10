@@ -32,6 +32,7 @@ fun ClienteEntity.toDomain(tags: List<Tag> = emptyList()) = Cliente(
     orePreventivate = orePreventivate,
     importoPreventivato = importoPreventivato,
     avatarColor = avatarColor,
+    preferito = preferito,
     tags = tags,
 )
 
@@ -50,6 +51,7 @@ fun Cliente.toEntity() = ClienteEntity(
     orePreventivate = orePreventivate,
     importoPreventivato = importoPreventivato,
     avatarColor = avatarColor,
+    preferito = preferito,
 )
 
 // ---- Tag ----

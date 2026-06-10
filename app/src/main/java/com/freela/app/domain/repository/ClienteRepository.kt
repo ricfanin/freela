@@ -13,5 +13,6 @@ interface ClienteRepository {
     suspend fun crea(cliente: Cliente, tags: List<String> = emptyList()): Long
     suspend fun aggiorna(cliente: Cliente, tags: List<String>? = null)
     suspend fun cambiaFase(clienteId: Long, fase: FasePipeline)
+    suspend fun cambiaPreferito(clienteId: Long, preferito: Boolean)
     suspend fun elimina(clienteId: Long)
 }

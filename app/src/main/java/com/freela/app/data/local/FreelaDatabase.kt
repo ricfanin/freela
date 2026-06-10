@@ -37,7 +37,7 @@ import com.freela.app.data.local.entity.TaskEntity
         FileAllegatoEntity::class,
         ProgettoEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = true,
 )
 @TypeConverters(EnumConverters::class)

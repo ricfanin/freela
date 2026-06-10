@@ -40,7 +40,7 @@ class ClienteDetailViewModel @Inject constructor(
     private val clienteRepo: ClienteRepository,
     private val interazioneRepo: InterazioneRepository,
     private val locationProvider: LocationProvider,
-    taskRepo: TaskRepository,
+    private val taskRepo: TaskRepository,
     timeRepo: TimeTrackingRepository,
     finanzeRepo: FinanzeRepository,
 ) : ViewModel() {
@@ -77,6 +77,52 @@ class ClienteDetailViewModel @Inject constructor(
     fun cambiaFase(fase: FasePipeline) {
         if (clienteId == 0L) return
         viewModelScope.launch { clienteRepo.cambiaFase(clienteId, fase) }
+    }
+
+    /** Marca/smarca il cliente come preferito (persistito). */
+    fun cambiaPreferito() {
+        val corrente = state.value.cliente ?: return
+        viewModelScope.launch { clienteRepo.cambiaPreferito(clienteId, !corrente.preferito) }
+    }
+
+    /** Modifica i dati anagrafici del cliente (PRD FR-01). */
+    fun aggiornaCliente(nome: String, telefono: String?, email: String?, fonte: String?, note: String?) {
+        val corrente = state.value.cliente ?: return
+        viewModelScope.launch {
+            clienteRepo.aggiorna(
+                corrente.copy(
+                    nome = nome.trim(),
+                    telefono = telefono?.trim()?.ifBlank { null },
+                    email = email?.trim()?.ifBlank { null },
+                    fonteAcquisizione = fonte?.trim()?.ifBlank { null },
+                    note = note?.trim()?.ifBlank { null },
+                ),
+            )
+        }
+    }
+
+    /** Elimina il cliente e i record collegati (PRD FR-01). */
+    fun elimina(onDone: () -> Unit) {
+        if (clienteId == 0L) return
+        viewModelScope.launch {
+            clienteRepo.elimina(clienteId)
+            onDone()
+        }
+    }
+
+    /** Crea un task/reminder collegato al cliente (PRD FR-09), schedulato fra [giorni] giorni. */
+    fun aggiungiReminder(titolo: String, giorni: Int) {
+        if (clienteId == 0L || titolo.isBlank()) return
+        val scadenza = System.currentTimeMillis() + giorni.coerceAtLeast(0) * 86_400_000L
+        viewModelScope.launch {
+            taskRepo.crea(
+                Task(
+                    titolo = titolo.trim(),
+                    clienteId = clienteId,
+                    scadenza = scadenza,
+                ),
+            )
+        }
     }
 
     fun aggiungiInterazione(

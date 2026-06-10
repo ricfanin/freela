@@ -36,10 +36,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.TextButton
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -95,7 +97,9 @@ fun ClienteDetailScreen(
     val stageC = stageColor(cliente.faseCorrente)
     var showInterazioneDialog by remember { mutableStateOf(false) }
     var showFaseDialog by remember { mutableStateOf(false) }
-    var preferito by remember { mutableStateOf(false) }
+    var showAzioni by remember { mutableStateOf(false) }
+    var showModifica by remember { mutableStateOf(false) }
+    var showReminder by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -140,8 +144,8 @@ fun ClienteDetailScreen(
             ) {
                 IconBtn(Icons.Outlined.ArrowBack, onClick = onBack)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    IconBtn(if (preferito) Icons.Filled.Star else Icons.Outlined.StarBorder, onClick = { preferito = !preferito })
-                    IconBtn(Icons.Outlined.MoreHoriz, onClick = { showFaseDialog = true })
+                    IconBtn(if (cliente.preferito) Icons.Filled.Star else Icons.Outlined.StarBorder, onClick = { viewModel.cambiaPreferito() })
+                    IconBtn(Icons.Outlined.MoreHoriz, onClick = { showAzioni = true })
                 }
             }
 
@@ -261,6 +265,7 @@ fun ClienteDetailScreen(
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
                         fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.clickable { showReminder = true },
                     )
                 }
                 FreelaCard(modifier = Modifier.weight(1f), padding = 14.dp) {
@@ -425,7 +430,151 @@ fun ClienteDetailScreen(
                 },
             )
         }
+        if (showAzioni) {
+            AzioniClienteDialog(
+                onDismiss = { showAzioni = false },
+                onModifica = { showAzioni = false; showModifica = true },
+                onCambiaFase = { showAzioni = false; showFaseDialog = true },
+                onElimina = { showAzioni = false; viewModel.elimina(onBack) },
+            )
+        }
+        if (showModifica) {
+            ModificaClienteDialog(
+                cliente = cliente,
+                onDismiss = { showModifica = false },
+                onConferma = { nome, tel, email, fonte, note ->
+                    viewModel.aggiornaCliente(nome, tel, email, fonte, note)
+                    showModifica = false
+                },
+            )
+        }
+        if (showReminder) {
+            ReminderDialog(
+                onDismiss = { showReminder = false },
+                onConferma = { titolo, giorni ->
+                    viewModel.aggiungiReminder(titolo, giorni)
+                    showReminder = false
+                },
+            )
+        }
     }
+}
+
+@Composable
+private fun AzioniClienteDialog(
+    onDismiss: () -> Unit,
+    onModifica: () -> Unit,
+    onCambiaFase: () -> Unit,
+    onElimina: () -> Unit,
+) {
+    val tokens = Freela.tokens
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.interazione_annulla)) }
+        },
+        title = { Text(stringResource(R.string.cliente_azioni_titolo)) },
+        text = {
+            Column {
+                Text(
+                    stringResource(R.string.cliente_azione_modifica),
+                    color = tokens.ink,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onModifica() }.padding(vertical = 12.dp),
+                )
+                Text(
+                    stringResource(R.string.cliente_action_cambia),
+                    color = tokens.ink,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onCambiaFase() }.padding(vertical = 12.dp),
+                )
+                Text(
+                    stringResource(R.string.cliente_azione_elimina),
+                    color = tokens.danger,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onElimina() }.padding(vertical = 12.dp),
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun ModificaClienteDialog(
+    cliente: com.freela.app.domain.model.Cliente,
+    onDismiss: () -> Unit,
+    onConferma: (nome: String, telefono: String?, email: String?, fonte: String?, note: String?) -> Unit,
+) {
+    var nome by remember { mutableStateOf(cliente.nome) }
+    var telefono by remember { mutableStateOf(cliente.telefono ?: "") }
+    var email by remember { mutableStateOf(cliente.email ?: "") }
+    var fonte by remember { mutableStateOf(cliente.fonteAcquisizione ?: "") }
+    var note by remember { mutableStateOf(cliente.note ?: "") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = nome.isNotBlank(),
+                onClick = { onConferma(nome, telefono, email, fonte, note) },
+            ) { Text(stringResource(R.string.interazione_salva)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.interazione_annulla)) }
+        },
+        title = { Text(stringResource(R.string.cliente_azione_modifica)) },
+        text = {
+            Column {
+                OutlinedTextField(value = nome, onValueChange = { nome = it }, label = { Text(stringResource(R.string.nc_nome_label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = telefono, onValueChange = { telefono = it }, label = { Text(stringResource(R.string.nc_telefono_label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.nc_email_label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = fonte, onValueChange = { fonte = it }, label = { Text(stringResource(R.string.nc_fonte_label)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(value = note, onValueChange = { note = it }, label = { Text(stringResource(R.string.nc_note_label)) }, modifier = Modifier.fillMaxWidth(), singleLine = false)
+            }
+        },
+    )
+}
+
+@Composable
+private fun ReminderDialog(
+    onDismiss: () -> Unit,
+    onConferma: (titolo: String, giorni: Int) -> Unit,
+) {
+    var titolo by remember { mutableStateOf("") }
+    var giorni by remember { mutableStateOf("1") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = titolo.isNotBlank(),
+                onClick = { onConferma(titolo, giorni.toIntOrNull() ?: 1) },
+            ) { Text(stringResource(R.string.interazione_salva)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.interazione_annulla)) }
+        },
+        title = { Text(stringResource(R.string.cliente_reminder_titolo)) },
+        text = {
+            Column {
+                OutlinedTextField(value = titolo, onValueChange = { titolo = it }, label = { Text(stringResource(R.string.cliente_reminder_cosa)) }, modifier = Modifier.fillMaxWidth(), singleLine = true)
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = giorni,
+                    onValueChange = { v -> giorni = v.filter { it.isDigit() } },
+                    label = { Text(stringResource(R.string.cliente_reminder_giorni)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

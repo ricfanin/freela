@@ -57,6 +57,10 @@ class LocalClienteRepository @Inject constructor(
         clienteDao.aggiornaFase(clienteId, fase)
     }
 
+    override suspend fun cambiaPreferito(clienteId: Long, preferito: Boolean) {
+        clienteDao.aggiornaPreferito(clienteId, preferito)
+    }
+
     override suspend fun elimina(clienteId: Long) {
         clienteDao.delete(clienteId)
     }

@@ -96,6 +96,12 @@
     <string name="nc_telefono_label">Numero di telefono</string>
     <string name="nc_email_label">Email</string>
     <string name="nc_email_placeholder">nome@dominio.it</string>
+    <string name="nc_fonte_label">Fonte acquisizione</string>
+    <string name="nc_fonte_placeholder">Instagram, passaparola…</string>
+    <string name="nc_note_label">Note</string>
+    <string name="nc_note_placeholder">Appunti sul cliente</string>
+    <string name="nc_tags_label">Tag (separati da virgola)</string>
+    <string name="nc_tags_placeholder">design, urgente…</string>
     <string name="nc_salva">Salva cliente</string>
     <!-- Nuovo progetto -->
     <string name="np_annulla">Annulla</string>
@@ -169,6 +175,13 @@
     <string name="cliente_action_chiama">Chiama</string>
     <string name="cliente_action_scrivi">Scrivi</string>
     <string name="cliente_action_timer">Timer</string>
+    <!-- Scheda cliente · azioni e reminder -->
+    <string name="cliente_azioni_titolo">Azioni cliente</string>
+    <string name="cliente_azione_modifica">Modifica dati</string>
+    <string name="cliente_azione_elimina">Elimina cliente</string>
+    <string name="cliente_reminder_titolo">Nuovo reminder</string>
+    <string name="cliente_reminder_cosa">Cosa ricordare</string>
+    <string name="cliente_reminder_giorni">Giorni da ora</string>
 
     <!-- Registra interazione -->
     <string name="interazione_titolo">Registra interazione</string>

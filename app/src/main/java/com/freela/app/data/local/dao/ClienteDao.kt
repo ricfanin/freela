@@ -56,6 +56,9 @@ interface ClienteDao {
     @Query("UPDATE clienti SET faseCorrente = :fase WHERE id = :id")
     suspend fun aggiornaFase(id: Long, fase: FasePipeline)
 
+    @Query("UPDATE clienti SET preferito = :preferito WHERE id = :id")
+    suspend fun aggiornaPreferito(id: Long, preferito: Boolean)
+
     @Query("DELETE FROM clienti WHERE id = :id")
     suspend fun delete(id: Long)
 

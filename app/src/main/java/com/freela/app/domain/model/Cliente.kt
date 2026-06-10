@@ -14,5 +14,6 @@ data class Cliente(
     val orePreventivate: Float? = null,
     val importoPreventivato: Double? = null,
     val avatarColor: String? = null,
+    val preferito: Boolean = false,
     val tags: List<Tag> = emptyList(),
 )

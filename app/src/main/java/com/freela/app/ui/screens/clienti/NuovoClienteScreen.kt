@@ -56,6 +56,9 @@ fun NuovoClienteScreen(
     var nome by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var fonte by remember { mutableStateOf("") }
+    var note by remember { mutableStateOf("") }
+    var tags by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier.fillMaxSize().background(tokens.bg).verticalScroll(rememberScrollState()),
@@ -118,12 +121,33 @@ fun NuovoClienteScreen(
                 onValueChange = { email = it },
                 placeholder = stringResource(R.string.nc_email_placeholder),
                 keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next,
+            )
+            FormField(
+                label = stringResource(R.string.nc_fonte_label),
+                value = fonte,
+                onValueChange = { fonte = it },
+                placeholder = stringResource(R.string.nc_fonte_placeholder),
+                imeAction = ImeAction.Next,
+            )
+            FormField(
+                label = stringResource(R.string.nc_tags_label),
+                value = tags,
+                onValueChange = { tags = it },
+                placeholder = stringResource(R.string.nc_tags_placeholder),
+                imeAction = ImeAction.Next,
+            )
+            FormField(
+                label = stringResource(R.string.nc_note_label),
+                value = note,
+                onValueChange = { note = it },
+                placeholder = stringResource(R.string.nc_note_placeholder),
                 imeAction = ImeAction.Done,
             )
             Spacer(Modifier.height(8.dp))
             FreelaButton(
                 text = stringResource(R.string.nc_salva),
-                onClick = { viewModel.salva(nome, telefono, email) { onBack() } },
+                onClick = { viewModel.salva(nome, telefono, email, fonte, note, tags) { onBack() } },
                 size = FreelaButtonSize.Large,
                 fillMaxWidth = true,
                 enabled = nome.isNotBlank(),
