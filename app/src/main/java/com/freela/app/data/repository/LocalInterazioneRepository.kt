@@ -18,6 +18,9 @@ class LocalInterazioneRepository @Inject constructor(
 
     override fun osservaUltimaData(clienteId: Long): Flow<Long?> = dao.osservaUltimaData(clienteId)
 
+    override fun osservaConteggioPeriodo(start: Long, end: Long): Flow<Int> =
+        dao.osservaConteggioPeriodo(start, end)
+
     override suspend fun aggiungi(interazione: Interazione): Long = dao.insert(interazione.toEntity())
 
     override suspend fun elimina(id: Long) = dao.delete(id)

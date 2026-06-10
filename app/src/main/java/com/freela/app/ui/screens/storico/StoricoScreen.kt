@@ -106,7 +106,16 @@ fun StoricoScreen(
                     stringResource(res),
                     tone = if (periodo == i) ChipTone.Accent else ChipTone.Neutral,
                     dot = periodo == i,
-                    modifier = Modifier.clickable { periodo = i },
+                    modifier = Modifier.clickable {
+                        periodo = i
+                        viewModel.selezionaPeriodo(
+                            when (i) {
+                                0 -> PeriodoStorico.SETTIMANA
+                                2 -> PeriodoStorico.ANNO
+                                else -> PeriodoStorico.MESE
+                            },
+                        )
+                    },
                 )
             }
         }

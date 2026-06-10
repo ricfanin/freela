@@ -19,6 +19,9 @@ interface InterazioneDao {
     @Query("SELECT MAX(data) FROM interazioni WHERE clienteId = :clienteId")
     fun osservaUltimaData(clienteId: Long): Flow<Long?>
 
+    @Query("SELECT COUNT(*) FROM interazioni WHERE data BETWEEN :start AND :end")
+    fun osservaConteggioPeriodo(start: Long, end: Long): Flow<Int>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(interazione: InterazioneEntity): Long
 

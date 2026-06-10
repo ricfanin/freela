@@ -8,6 +8,7 @@ interface TimeTrackingRepository {
     fun osservaInCorso(): Flow<SessioneLavoro?>
     fun osservaDurataTotaleMillis(clienteId: Long, now: Long): Flow<Long>
     fun osservaOreTotaliPeriodoMillis(start: Long, end: Long, now: Long): Flow<Long>
+    fun osservaDurataPeriodoMillisCliente(clienteId: Long, start: Long, end: Long, now: Long): Flow<Long>
     suspend fun avvia(clienteId: Long, descrizione: String?): Long
     suspend fun ferma(sessioneId: Long)
     suspend fun aggiungiManuale(s: SessioneLavoro): Long

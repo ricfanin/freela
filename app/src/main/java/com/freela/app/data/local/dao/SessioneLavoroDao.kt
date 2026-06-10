@@ -32,6 +32,13 @@ interface SessioneLavoroDao {
     """)
     fun osservaDurataPeriodoMillis(start: Long, end: Long, now: Long): Flow<Long>
 
+    @Query("""
+        SELECT IFNULL(SUM(IFNULL(fine, :now) - inizio), 0)
+        FROM sessioni_lavoro
+        WHERE clienteId = :clienteId AND inizio BETWEEN :start AND :end
+    """)
+    fun osservaDurataPeriodoMillisCliente(clienteId: Long, start: Long, end: Long, now: Long): Flow<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(s: SessioneLavoroEntity): Long
 
