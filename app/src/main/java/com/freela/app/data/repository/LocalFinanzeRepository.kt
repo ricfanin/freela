@@ -42,6 +42,8 @@ class LocalFinanzeRepository @Inject constructor(
     override suspend fun segnaPagata(fatturaId: Long) =
         fatturaDao.segnaPagata(fatturaId, System.currentTimeMillis())
 
+    override suspend fun eliminaFattura(fatturaId: Long) = fatturaDao.delete(fatturaId)
+
     // -------- Preventivi --------
     override fun osservaPreventivi(): Flow<List<Preventivo>> =
         preventivoDao.osservaTutti().map { list -> list.map { it.toDomain() } }
@@ -55,8 +57,8 @@ class LocalFinanzeRepository @Inject constructor(
 
     override suspend fun creaPreventivo(p: Preventivo): Long = preventivoDao.insert(p.toEntity())
 
-    override suspend fun cambiaStatoPreventivo(preventivoId: Long, nuovo: StatoPreventivo) {
-        // Per ora reinserisce con stato modificato; in V2 si fa UPDATE diretto via DAO dedicato.
-        // Minor TODO da non bloccare ora.
-    }
+    override suspend fun cambiaStatoPreventivo(preventivoId: Long, nuovo: StatoPreventivo) =
+        preventivoDao.aggiornaStato(preventivoId, nuovo)
+
+    override suspend fun eliminaPreventivo(preventivoId: Long) = preventivoDao.delete(preventivoId)
 }

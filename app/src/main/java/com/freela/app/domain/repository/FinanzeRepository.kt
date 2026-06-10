@@ -16,6 +16,7 @@ interface FinanzeRepository {
     fun osservaTotaleRitardo(now: Long): Flow<Double>
     suspend fun creaFattura(f: Fattura): Long
     suspend fun segnaPagata(fatturaId: Long)
+    suspend fun eliminaFattura(fatturaId: Long)
 
     // Preventivi
     fun osservaPreventivi(): Flow<List<Preventivo>>
@@ -23,4 +24,5 @@ interface FinanzeRepository {
     fun osservaPreventiviPerCliente(clienteId: Long): Flow<List<Preventivo>>
     suspend fun creaPreventivo(p: Preventivo): Long
     suspend fun cambiaStatoPreventivo(preventivoId: Long, nuovo: StatoPreventivo)
+    suspend fun eliminaPreventivo(preventivoId: Long)
 }

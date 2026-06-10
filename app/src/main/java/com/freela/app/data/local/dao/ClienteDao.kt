@@ -29,14 +29,20 @@ interface ClienteDao {
     @Query("SELECT * FROM clienti WHERE id = :id LIMIT 1")
     suspend fun byId(id: Long): ClienteEntity?
 
+    @Transaction
     @Query("""
         SELECT * FROM clienti
         WHERE (:q IS NULL OR :q = ''
                OR LOWER(nome) LIKE '%' || LOWER(:q) || '%'
-               OR LOWER(IFNULL(telefono,'')) LIKE '%' || LOWER(:q) || '%')
+               OR LOWER(IFNULL(telefono,'')) LIKE '%' || LOWER(:q) || '%'
+               OR id IN (
+                   SELECT ctr.clienteId FROM cliente_tag ctr
+                   JOIN tags t ON t.id = ctr.tagId
+                   WHERE LOWER(t.nome) LIKE '%' || LOWER(:q) || '%'
+               ))
         ORDER BY nome ASC
     """)
-    fun cerca(q: String?): Flow<List<ClienteEntity>>
+    fun cercaConTags(q: String?): Flow<List<ClienteWithTags>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cliente: ClienteEntity): Long

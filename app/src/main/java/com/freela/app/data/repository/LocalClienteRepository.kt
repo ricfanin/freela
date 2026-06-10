@@ -28,7 +28,7 @@ class LocalClienteRepository @Inject constructor(
         clienteDao.osservaConTags(id).map { it?.toDomain() }
 
     override fun cerca(query: String): Flow<List<Cliente>> =
-        clienteDao.cerca(query).map { list -> list.map { it.toDomain() } }
+        clienteDao.cercaConTags(query).map { list -> list.map { it.toDomain() } }
 
     override fun osservaTags(): Flow<List<Tag>> =
         tagDao.osservaTutti().map { list -> list.map { it.toDomain() } }
@@ -40,8 +40,17 @@ class LocalClienteRepository @Inject constructor(
         id
     }
 
-    override suspend fun aggiorna(cliente: Cliente) {
-        clienteDao.update(cliente.toEntity())
+    override suspend fun aggiorna(cliente: Cliente, tags: List<String>?) {
+        if (tags == null) {
+            clienteDao.update(cliente.toEntity())
+            return
+        }
+        db.withTransaction {
+            clienteDao.update(cliente.toEntity())
+            clienteDao.cancellaTagsCliente(cliente.id)
+            val tagIds = tags.map { tagDao.upsert(it) }
+            clienteDao.insertTagCrossRefs(tagIds.map { tagId -> ClienteTagCrossRef(cliente.id, tagId) })
+        }
     }
 
     override suspend fun cambiaFase(clienteId: Long, fase: FasePipeline) {

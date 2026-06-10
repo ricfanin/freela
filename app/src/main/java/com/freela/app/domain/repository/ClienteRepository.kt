@@ -11,7 +11,7 @@ interface ClienteRepository {
     fun cerca(query: String): Flow<List<Cliente>>
     fun osservaTags(): Flow<List<Tag>>
     suspend fun crea(cliente: Cliente, tags: List<String> = emptyList()): Long
-    suspend fun aggiorna(cliente: Cliente)
+    suspend fun aggiorna(cliente: Cliente, tags: List<String>? = null)
     suspend fun cambiaFase(clienteId: Long, fase: FasePipeline)
     suspend fun elimina(clienteId: Long)
 }

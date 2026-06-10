@@ -26,6 +26,12 @@ interface PreventivoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<PreventivoEntity>)
 
+    @Query("UPDATE preventivi SET stato = :stato WHERE id = :id")
+    suspend fun aggiornaStato(id: Long, stato: StatoPreventivo)
+
+    @Query("DELETE FROM preventivi WHERE id = :id")
+    suspend fun delete(id: Long)
+
     @Query("DELETE FROM preventivi")
     suspend fun cancellaTutti()
 }

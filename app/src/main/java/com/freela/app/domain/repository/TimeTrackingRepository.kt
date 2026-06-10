@@ -10,4 +10,5 @@ interface TimeTrackingRepository {
     suspend fun avvia(clienteId: Long, descrizione: String?): Long
     suspend fun ferma(sessioneId: Long)
     suspend fun aggiungiManuale(s: SessioneLavoro): Long
+    suspend fun elimina(sessioneId: Long)
 }

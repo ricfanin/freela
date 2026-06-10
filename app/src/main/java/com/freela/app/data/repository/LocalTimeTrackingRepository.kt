@@ -28,4 +28,6 @@ class LocalTimeTrackingRepository @Inject constructor(
     override suspend fun ferma(sessioneId: Long) = dao.chiudi(sessioneId, System.currentTimeMillis())
 
     override suspend fun aggiungiManuale(s: SessioneLavoro): Long = dao.insert(s.copy(inserimentoManuale = true).toEntity())
+
+    override suspend fun elimina(sessioneId: Long) = dao.delete(sessioneId)
 }

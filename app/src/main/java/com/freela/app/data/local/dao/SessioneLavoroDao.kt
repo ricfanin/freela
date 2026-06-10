@@ -34,6 +34,9 @@ interface SessioneLavoroDao {
     @Query("UPDATE sessioni_lavoro SET fine = :ora WHERE id = :id")
     suspend fun chiudi(id: Long, ora: Long)
 
+    @Query("DELETE FROM sessioni_lavoro WHERE id = :id")
+    suspend fun delete(id: Long)
+
     @Query("DELETE FROM sessioni_lavoro")
     suspend fun cancellaTutte()
 }
