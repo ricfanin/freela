@@ -181,7 +181,16 @@ fun NuovoProgettoScreen(
 
             FreelaButton(
                 text = stringResource(R.string.np_crea),
-                onClick = { viewModel.salva(clienteSel?.id ?: 0L, nome, totale, onBack) },
+                onClick = {
+                    viewModel.salva(
+                        clienteId = clienteSel?.id ?: 0L,
+                        nome = nome,
+                        oreStimate = totale,
+                        deadline = parseDeadline(deadline),
+                        taskTitoli = tasks.map { it.nome },
+                        onDone = onBack,
+                    )
+                },
                 size = FreelaButtonSize.Large,
                 fillMaxWidth = true,
                 enabled = nome.isNotBlank() && clienteSel != null,
@@ -211,6 +220,16 @@ fun NuovoProgettoScreen(
             },
         )
     }
+}
+
+private fun parseDeadline(text: String): Long? {
+    val t = text.trim()
+    if (t.isBlank()) return null
+    return runCatching {
+        java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.ITALIAN)
+            .apply { isLenient = false }
+            .parse(t)?.time
+    }.getOrNull()
 }
 
 @Composable

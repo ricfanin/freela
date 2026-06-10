@@ -25,6 +25,7 @@ data class ProgettoUi(
     val oreReali: Float,
     val orePrev: Float,
     val budget: Double,
+    val deadline: Long?,
 )
 
 data class ProgettiUiState(
@@ -69,6 +70,7 @@ class ProgettiViewModel @Inject constructor(
                 oreReali = orePrev * perc / 100f,
                 orePrev = orePrev,
                 budget = c?.importoPreventivato ?: 0.0,
+                deadline = p.deadline,
             )
         }
         ProgettiUiState(

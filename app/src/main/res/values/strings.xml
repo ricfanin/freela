@@ -88,6 +88,8 @@
     <string name="progetto_tab_documenti">Documenti</string>
     <string name="progetto_no_task">Nessun task in questo progetto</string>
     <string name="progetto_no_documenti">Nessun documento allegato</string>
+    <string name="progetto_azioni_titolo">Azioni progetto</string>
+    <string name="progetto_azione_elimina">Elimina progetto</string>
     <!-- Nuovo cliente -->
     <string name="nc_annulla">Annulla</string>
     <string name="nc_subtitle">I dati restano solo sul tuo dispositivo.</string>

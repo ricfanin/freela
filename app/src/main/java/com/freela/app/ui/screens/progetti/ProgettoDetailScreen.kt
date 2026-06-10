@@ -19,15 +19,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -60,6 +64,7 @@ fun ProgettoDetailScreen(
     val tokens = Freela.tokens
     val c = state.cliente
     var tab by remember { mutableIntStateOf(0) }
+    var showAzioni by remember { mutableStateOf(false) }
 
     val orePrev = (state.progetto?.oreStimate ?: 0).toFloat()
     val oreReali = state.oreRealiMillis / 3_600_000f
@@ -78,8 +83,11 @@ fun ProgettoDetailScreen(
                 IconBtn(Icons.Outlined.ArrowBack, tokens.ink) { onBack() }
             },
             trailing = {
-                IconBtn(Icons.Outlined.StarBorder, tokens.muted) {}
-                IconBtn(Icons.Outlined.MoreHoriz, tokens.ink) {}
+                val pref = c?.preferito == true
+                IconBtn(if (pref) Icons.Filled.Star else Icons.Outlined.StarBorder, if (pref) tokens.accentBase else tokens.muted) {
+                    viewModel.cambiaPreferitoCliente()
+                }
+                IconBtn(Icons.Outlined.MoreHoriz, tokens.ink) { showAzioni = true }
             },
         )
 
@@ -154,7 +162,8 @@ fun ProgettoDetailScreen(
                                     Box(
                                         modifier = Modifier.size(20.dp).clip(RoundedCornerShape(6.dp))
                                             .background(if (t.completato) tokens.accentBase else androidx.compose.ui.graphics.Color.Transparent)
-                                            .border(1.5.dp, if (t.completato) tokens.accentBase else tokens.line, RoundedCornerShape(6.dp)),
+                                            .border(1.5.dp, if (t.completato) tokens.accentBase else tokens.line, RoundedCornerShape(6.dp))
+                                            .clickable { viewModel.toggleTask(t) },
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         if (t.completato) Icon(Icons.Outlined.Check, contentDescription = null, tint = androidx.compose.ui.graphics.Color.White, modifier = Modifier.size(13.dp))
@@ -176,6 +185,56 @@ fun ProgettoDetailScreen(
             )
         }
     }
+
+    if (showAzioni) {
+        AzioniProgettoDialog(
+            statoCorrente = state.progetto?.stato,
+            onDismiss = { showAzioni = false },
+            onStato = { stato -> viewModel.cambiaStato(stato); showAzioni = false },
+            onElimina = { showAzioni = false; viewModel.elimina(onBack) },
+        )
+    }
+}
+
+@Composable
+private fun AzioniProgettoDialog(
+    statoCorrente: StatoProgetto?,
+    onDismiss: () -> Unit,
+    onStato: (StatoProgetto) -> Unit,
+    onElimina: () -> Unit,
+) {
+    val tokens = Freela.tokens
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.np_annulla)) }
+        },
+        title = { Text(stringResource(R.string.progetto_azioni_titolo)) },
+        text = {
+            Column {
+                StatoProgetto.entries.forEach { stato ->
+                    val label = when (stato) {
+                        StatoProgetto.IN_CORSO -> stringResource(R.string.progetto_stato_in_corso)
+                        StatoProgetto.DA_INIZIARE -> stringResource(R.string.progetto_stato_da_iniziare)
+                        StatoProgetto.COMPLETATO -> stringResource(R.string.progetto_stato_completato)
+                    }
+                    Text(
+                        label,
+                        color = if (stato == statoCorrente) tokens.accentBase else tokens.ink,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().clickable { onStato(stato) }.padding(vertical = 12.dp),
+                    )
+                }
+                Text(
+                    stringResource(R.string.progetto_azione_elimina),
+                    color = tokens.danger,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onElimina() }.padding(vertical = 12.dp),
+                )
+            }
+        },
+    )
 }
 
 @Composable

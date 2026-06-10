@@ -55,9 +55,13 @@ fun ProgettiScreen(
     val tokens = Freela.tokens
     var filtro by remember { mutableIntStateOf(0) }
 
+    val limiteScadenza = remember { System.currentTimeMillis() + 14L * 86_400_000L }
     val apertiFiltrati = when (filtro) {
         1 -> state.aperti.filter { it.stato == StatoProgetto.IN_CORSO }
         2 -> state.aperti.filter { it.stato == StatoProgetto.DA_INIZIARE }
+        3 -> state.aperti
+            .filter { it.deadline != null && it.deadline <= limiteScadenza }
+            .sortedBy { it.deadline }
         else -> state.aperti
     }
     val mostraCompletati = filtro == 0

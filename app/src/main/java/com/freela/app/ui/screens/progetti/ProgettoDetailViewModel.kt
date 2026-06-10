@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.Progetto
+import com.freela.app.domain.model.StatoProgetto
 import com.freela.app.domain.model.Task
 import com.freela.app.domain.repository.ClienteRepository
 import com.freela.app.domain.repository.ProgettoRepository
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 data class ProgettoDetailState(
     val progetto: Progetto? = null,
@@ -31,7 +33,7 @@ data class ProgettoDetailState(
 @HiltViewModel
 class ProgettoDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    progettoRepo: ProgettoRepository,
+    private val progettoRepo: ProgettoRepository,
     private val clienteRepo: ClienteRepository,
     private val taskRepo: TaskRepository,
     private val timeRepo: TimeTrackingRepository,
@@ -60,4 +62,33 @@ class ProgettoDetailViewModel @Inject constructor(
             }
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgettoDetailState())
+
+    /** Marca/smarca come preferito il cliente collegato al progetto. */
+    fun cambiaPreferitoCliente() {
+        val cliente = state.value.cliente ?: return
+        viewModelScope.launch { clienteRepo.cambiaPreferito(cliente.id, !cliente.preferito) }
+    }
+
+    fun cambiaStato(stato: StatoProgetto) {
+        val progetto = state.value.progetto ?: return
+        viewModelScope.launch { progettoRepo.aggiorna(progetto.copy(stato = stato)) }
+    }
+
+    fun elimina(onDone: () -> Unit) {
+        if (progettoId == 0L) return
+        viewModelScope.launch {
+            progettoRepo.elimina(progettoId)
+            onDone()
+        }
+    }
+
+    fun toggleTask(task: Task) {
+        viewModelScope.launch {
+            if (task.completato) {
+                taskRepo.aggiorna(task.copy(completato = false, dataCompletamento = null))
+            } else {
+                taskRepo.completa(task.id)
+            }
+        }
+    }
 }
