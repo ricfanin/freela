@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.OrigineTask
+import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.Task
 import com.freela.app.domain.repository.ClienteRepository
 import com.freela.app.domain.repository.TaskRepository
@@ -23,6 +24,7 @@ data class TaskUiState(
     val righe: List<TaskRiga> = emptyList(),
     val totaleAperti: Int = 0,
     val totaleUrgenti: Int = 0,
+    val clienti: List<Cliente> = emptyList(),
 )
 
 @HiltViewModel
@@ -50,12 +52,36 @@ class TaskViewModel @Inject constructor(
         TaskUiState(
             righe = righe,
             totaleAperti = tasks.size,
-            totaleUrgenti = tasks.count { it.priorita == com.freela.app.domain.model.Priorita.ALTA },
+            totaleUrgenti = tasks.count { it.priorita == Priorita.ALTA },
+            clienti = clienti,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TaskUiState())
 
     fun completa(taskId: Long) {
         viewModelScope.launch { taskRepo.completa(taskId) }
+    }
+
+    fun crea(titolo: String, descrizione: String?, clienteId: Long?, scadenza: Long, priorita: Priorita) {
+        viewModelScope.launch {
+            taskRepo.crea(
+                Task(
+                    titolo = titolo,
+                    descrizione = descrizione,
+                    clienteId = clienteId,
+                    scadenza = scadenza,
+                    priorita = priorita,
+                    origine = OrigineTask.MANUALE,
+                ),
+            )
+        }
+    }
+
+    fun aggiorna(task: Task) {
+        viewModelScope.launch { taskRepo.aggiorna(task) }
+    }
+
+    fun elimina(taskId: Long) {
+        viewModelScope.launch { taskRepo.elimina(taskId) }
     }
 
     private fun endOfTodayMillis(): Long {

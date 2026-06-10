@@ -190,6 +190,22 @@
     <string name="task_section_suggeriti">Suggeriti</string>
     <string name="task_badge_suggerito">suggerito</string>
     <string name="task_priority_alta">priorità alta</string>
+    <!-- Task · creazione e modifica -->
+    <string name="task_nuovo_titolo">Nuovo task</string>
+    <string name="task_modifica_titolo">Modifica task</string>
+    <string name="task_campo_titolo">Titolo</string>
+    <string name="task_campo_cliente">Cliente (opzionale)</string>
+    <string name="task_cliente_nessuno">Nessuno</string>
+    <string name="task_campo_priorita">Priorità</string>
+    <string name="task_priorita_bassa">Bassa</string>
+    <string name="task_priorita_media">Media</string>
+    <string name="task_priorita_alta_label">Alta</string>
+    <string name="task_campo_giorni">Giorni alla scadenza</string>
+    <string name="task_campo_ora">Ora (0-23)</string>
+    <string name="task_campo_descrizione">Descrizione (opzionale)</string>
+    <string name="task_salva">Salva</string>
+    <string name="task_annulla">Annulla</string>
+    <string name="task_elimina">Elimina</string>
 
     <!-- Timer -->
     <string name="timer_title">Time tracking</string>
