@@ -149,48 +149,6 @@ fun StoricoScreen(
             }
         }
 
-        // Pattern del mese (insight)
-        state.distribuzione.firstOrNull { it.ore > 0f }?.let { top ->
-            Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp)) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(tokens.accentSofter)
-                        .border(1.dp, tokens.accentSoft, RoundedCornerShape(18.dp))
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Box(
-                        modifier = Modifier.size(28.dp).clip(CircleShape).background(tokens.accentBase.copy(alpha = 0.18f)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = tokens.accentBase, modifier = Modifier.size(15.dp))
-                    }
-                    Column {
-                        Text(
-                            stringResource(R.string.storico_label_pattern).uppercase(),
-                            color = tokens.accentBase,
-                            style = tokens.typeExtras.monoCap,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            stringResource(
-                                R.string.storico_pattern_text,
-                                top.cliente.nome,
-                                String.format(Locale.ITALIAN, "%.0f", top.ore),
-                            ),
-                            color = tokens.ink,
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(4.dp))
-        }
-
         // Top clienti
         if (state.topClienti.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 18.dp)) {
@@ -213,12 +171,7 @@ fun StoricoScreen(
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(c.nome, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
                                     Text(
-                                        text = run {
-                                            val ore = c.orePreventivate?.toInt() ?: 0
-                                            val tariffa = c.orePreventivate?.takeIf { it > 0f }
-                                                ?.let { ((c.importoPreventivato ?: 0.0) / it).toInt() }
-                                            if (tariffa != null) "${ore}h · €$tariffa/h" else "${ore}h"
-                                        },
+                                        "${c.orePreventivate?.toInt() ?: 0}h tracciate",
                                         color = tokens.muted,
                                         fontSize = 12.sp,
                                     )

@@ -156,7 +156,7 @@ private fun ClienteRow(c: Cliente, onClick: () -> Unit) {
         Column(modifier = Modifier.weight(1f)) {
             Text(c.nome, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.Bold)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Box(Modifier.width(5.dp).height(18.dp).clip(RoundedCornerShape(2.5.dp)).background(stageColor(c.faseCorrente)))
+                Box(Modifier.size(7.dp).clip(CircleShape).background(stageColor(c.faseCorrente)))
                 Text(ctx.getString(c.faseCorrente.shortRes), color = tokens.muted, fontSize = 12.5f.sp, style = MaterialTheme.typography.bodySmall)
             }
         }
