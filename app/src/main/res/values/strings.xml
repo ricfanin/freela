@@ -219,6 +219,15 @@
     <string name="timer_label_idle">Nessuna sessione</string>
     <string name="timer_idle_hint">Avvia il timer per iniziare a tracciare.</string>
     <string name="timer_no_activity">Tocca play per avviare</string>
+    <!-- Timer · selezione cliente e inserimento manuale -->
+    <string name="timer_seleziona_cliente">Seleziona cliente</string>
+    <string name="timer_manuale_titolo">Aggiungi ore manuali</string>
+    <string name="timer_manuale_durata">Durata (min)</string>
+    <string name="timer_manuale_descrizione">Descrizione (opzionale)</string>
+    <string name="timer_salva">Salva</string>
+    <string name="timer_annulla">Annulla</string>
+    <string name="timer_mostra_meno">Meno</string>
+    <string name="timer_nessun_cliente">Nessun cliente selezionato</string>
 
     <!-- Finanze -->
     <string name="finanze_title">Finanze</string>

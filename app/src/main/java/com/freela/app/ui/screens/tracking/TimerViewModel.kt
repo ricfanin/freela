@@ -10,6 +10,7 @@ import com.freela.app.domain.repository.TimeTrackingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 data class TimerUiState(
     val sessioneAttiva: SessioneLavoro? = null,
     val clienteAttivo: Cliente? = null,
+    val clienti: List<Cliente> = emptyList(),
     val sessioniRecenti: List<SessioneLavoro> = emptyList(),
     val oreRealiMillis: Long = 0L,
 )
@@ -32,19 +34,24 @@ class TimerViewModel @Inject constructor(
     clienteRepo: ClienteRepository,
 ) : ViewModel() {
 
+    /** Cliente scelto manualmente dall'utente; ha precedenza sull'auto-selezione. */
+    private val clienteSelezionato = MutableStateFlow<Long?>(null)
+
     private val base = combine(
         timeRepo.osservaInCorso(),
         clienteRepo.osservaTutti(),
-    ) { sessione, clienti ->
+        clienteSelezionato,
+    ) { sessione, clienti, selId ->
         val cliente = sessione?.let { s -> clienti.firstOrNull { it.id == s.clienteId } }
+            ?: selId?.let { id -> clienti.firstOrNull { it.id == id } }
             ?: clienti.firstOrNull { it.faseCorrente == FasePipeline.IN_CORSO }
             ?: clienti.firstOrNull()
-        sessione to cliente
+        Triple(sessione, cliente, clienti)
     }
 
-    val state: StateFlow<TimerUiState> = base.flatMapLatest { (sessione, cliente) ->
+    val state: StateFlow<TimerUiState> = base.flatMapLatest { (sessione, cliente, clienti) ->
         if (cliente == null) {
-            flowOf(TimerUiState(sessioneAttiva = sessione, clienteAttivo = null))
+            flowOf(TimerUiState(sessioneAttiva = sessione, clienteAttivo = null, clienti = clienti))
         } else {
             combine(
                 timeRepo.osservaPerCliente(cliente.id),
@@ -53,12 +60,15 @@ class TimerViewModel @Inject constructor(
                 TimerUiState(
                     sessioneAttiva = sessione,
                     clienteAttivo = cliente,
-                    sessioniRecenti = sessioni.filter { it.fine != null }.sortedByDescending { it.inizio }.take(5),
+                    clienti = clienti,
+                    sessioniRecenti = sessioni.filter { it.fine != null }.sortedByDescending { it.inizio },
                     oreRealiMillis = durataMillis,
                 )
             }
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), TimerUiState())
+
+    fun selezionaCliente(clienteId: Long) { clienteSelezionato.value = clienteId }
 
     /** Inserimento manuale di una sessione conclusa (PRD FR-19, US-17). */
     fun aggiungiManuale(clienteId: Long, minuti: Int, descrizione: String?) {
@@ -76,5 +86,9 @@ class TimerViewModel @Inject constructor(
                 ),
             )
         }
+    }
+
+    fun eliminaSessione(sessioneId: Long) {
+        viewModelScope.launch { timeRepo.elimina(sessioneId) }
     }
 }

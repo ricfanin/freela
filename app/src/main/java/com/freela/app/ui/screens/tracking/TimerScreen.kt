@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
@@ -23,12 +26,18 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Stop
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,14 +45,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
+import com.freela.app.domain.model.Cliente
+import com.freela.app.domain.model.SessioneLavoro
 import com.freela.app.service.TimerForegroundService
 import com.freela.app.ui.components.Avatar
+import com.freela.app.ui.components.ChipSize
+import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.FreelaCard
+import com.freela.app.ui.components.FreelaChip
 import com.freela.app.ui.components.FreelaProgressBar
 import com.freela.app.ui.components.ScreenHeader
 import com.freela.app.ui.components.SectionHead
@@ -64,6 +79,11 @@ fun TimerScreen(
 
     val sessione = state.sessioneAttiva
     val inCorso = sessione != null
+
+    var showClienteDialog by remember { mutableStateOf(false) }
+    var showManuale by remember { mutableStateOf(false) }
+    var mostraTutte by remember { mutableStateOf(false) }
+    var sessioneDaEliminare by remember { mutableStateOf<SessioneLavoro?>(null) }
 
     // Cronometro live: tick ogni secondo quando una sessione è attiva.
     val elapsedMillis by produceState(0L, sessione?.inizio) {
@@ -99,10 +119,11 @@ fun TimerScreen(
                 Box(
                     modifier = Modifier.size(36.dp).clip(CircleShape)
                         .border(1.dp, tokens.line, CircleShape)
+                        .clickable { mostraTutte = !mostraTutte }
                         .padding(8.dp),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Outlined.History, contentDescription = null, tint = tokens.ink, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Outlined.History, contentDescription = null, tint = if (mostraTutte) tokens.accentBase else tokens.ink, modifier = Modifier.size(16.dp))
                 }
             },
         )
@@ -146,7 +167,12 @@ fun TimerScreen(
 
             // Client + activity selector
             Spacer(Modifier.height(22.dp))
-            FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
+            FreelaCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(enabled = state.clienti.isNotEmpty()) { showClienteDialog = true },
+                padding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+            ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     val c = state.clienteAttivo
                     if (c != null) {
@@ -161,16 +187,14 @@ fun TimerScreen(
                             )
                         }
                     } else {
-                        Text("Nessun cliente selezionato", color = tokens.muted, modifier = Modifier.weight(1f))
+                        Text(stringResource(R.string.timer_nessun_cliente), color = tokens.muted, modifier = Modifier.weight(1f))
                     }
-                    if (c != null) {
-                        Icon(
-                            Icons.Outlined.KeyboardArrowDown,
-                            contentDescription = null,
-                            tint = tokens.faint,
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
+                    Icon(
+                        Icons.Outlined.KeyboardArrowDown,
+                        contentDescription = null,
+                        tint = tokens.faint,
+                        modifier = Modifier.size(16.dp),
+                    )
                 }
             }
 
@@ -188,8 +212,8 @@ fun TimerScreen(
                 }
                 val cliente = state.clienteAttivo
                 CircleAction(Icons.Outlined.Add, size = 56.dp, isPrimary = false) {
-                    // Inserimento manuale rapido di 30 min (PRD FR-19).
-                    if (cliente != null) viewModel.aggiungiManuale(cliente.id, 30, null)
+                    // Inserimento manuale di una sessione (PRD FR-19): apre il form durata/descrizione.
+                    if (cliente != null) showManuale = true
                 }
             }
         }
@@ -231,16 +255,22 @@ fun TimerScreen(
 
         // Sessioni recenti
         if (state.sessioniRecenti.isNotEmpty()) {
+            val visibili = if (mostraTutte) state.sessioniRecenti else state.sessioniRecenti.take(5)
             Column(modifier = Modifier.padding(horizontal = 22.dp).padding(bottom = 24.dp)) {
                 SectionHead(
                     label = stringResource(R.string.timer_section_recenti),
-                    actionText = "Tutte →",
+                    count = state.sessioniRecenti.size,
+                    actionText = if (mostraTutte) stringResource(R.string.timer_mostra_meno) else stringResource(R.string.cliente_action_tutte),
+                    onActionClick = { mostraTutte = !mostraTutte },
                 )
                 FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
                     Column {
-                        state.sessioniRecenti.forEachIndexed { i, s ->
+                        visibili.forEachIndexed { i, s ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { sessioneDaEliminare = s }
+                                    .padding(horizontal = 16.dp, vertical = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                             ) {
@@ -262,7 +292,7 @@ fun TimerScreen(
                                     style = tokens.typeExtras.monoMeta,
                                 )
                             }
-                            if (i < state.sessioniRecenti.size - 1) {
+                            if (i < visibili.size - 1) {
                                 Box(Modifier.fillMaxWidth().height(1.dp).background(tokens.lineSoft))
                             }
                         }
@@ -271,6 +301,119 @@ fun TimerScreen(
             }
         }
     }
+
+    if (showClienteDialog) {
+        SelezionaClienteDialog(
+            clienti = state.clienti,
+            selezionato = state.clienteAttivo?.id,
+            onDismiss = { showClienteDialog = false },
+            onPick = { id ->
+                viewModel.selezionaCliente(id)
+                showClienteDialog = false
+            },
+        )
+    }
+
+    if (showManuale) {
+        val cliente = state.clienteAttivo
+        OreManualiDialog(
+            onDismiss = { showManuale = false },
+            onConferma = { minuti, descr ->
+                cliente?.let { viewModel.aggiungiManuale(it.id, minuti, descr) }
+                showManuale = false
+            },
+        )
+    }
+
+    sessioneDaEliminare?.let { s ->
+        AlertDialog(
+            onDismissRequest = { sessioneDaEliminare = null },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.eliminaSessione(s.id)
+                    sessioneDaEliminare = null
+                }) { Text(stringResource(R.string.finanze_azione_elimina), color = Freela.tokens.danger) }
+            },
+            dismissButton = {
+                TextButton(onClick = { sessioneDaEliminare = null }) { Text(stringResource(R.string.timer_annulla)) }
+            },
+            title = { Text(stringResource(R.string.timer_section_recenti)) },
+            text = { Text(s.descrizione ?: stringResource(R.string.timer_no_activity)) },
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SelezionaClienteDialog(
+    clienti: List<Cliente>,
+    selezionato: Long?,
+    onDismiss: () -> Unit,
+    onPick: (Long) -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.timer_annulla)) }
+        },
+        title = { Text(stringResource(R.string.timer_seleziona_cliente)) },
+        text = {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                clienti.forEach { c ->
+                    FreelaChip(
+                        c.nome,
+                        tone = if (c.id == selezionato) ChipTone.Accent else ChipTone.Neutral,
+                        size = ChipSize.Small,
+                        modifier = Modifier.clickable { onPick(c.id) },
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun OreManualiDialog(
+    onDismiss: () -> Unit,
+    onConferma: (minuti: Int, descrizione: String?) -> Unit,
+) {
+    var durata by remember { mutableStateOf("") }
+    var descrizione by remember { mutableStateOf("") }
+    val minuti = durata.toIntOrNull() ?: 0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = minuti > 0,
+                onClick = { onConferma(minuti, descrizione.ifBlank { null }) },
+            ) { Text(stringResource(R.string.timer_salva)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.timer_annulla)) }
+        },
+        title = { Text(stringResource(R.string.timer_manuale_titolo)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = durata,
+                    onValueChange = { v -> durata = v.filter { it.isDigit() } },
+                    label = { Text(stringResource(R.string.timer_manuale_durata)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                )
+                Spacer(Modifier.height(8.dp))
+                OutlinedTextField(
+                    value = descrizione,
+                    onValueChange = { descrizione = it },
+                    label = { Text(stringResource(R.string.timer_manuale_descrizione)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                )
+            }
+        },
+    )
 }
 
 private fun formatGiorno(millis: Long): String =
