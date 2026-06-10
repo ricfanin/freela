@@ -2,15 +2,17 @@ package com.freela.app.ui.screens.pipeline
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,17 +24,19 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.FilterList
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -44,11 +48,9 @@ import com.freela.app.R
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.FasePipeline
 import com.freela.app.ui.components.Avatar
-import com.freela.app.ui.components.FreelaCard
-import com.freela.app.ui.components.FreelaChip
-import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.ScreenHeader
 import com.freela.app.ui.theme.Freela
+import com.freela.app.ui.theme.PillShape
 import com.freela.app.ui.theme.stageColor
 import java.util.Locale
 
@@ -59,6 +61,14 @@ fun PipelineScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
+    val ctx = LocalContext.current
+
+    var selected by remember { mutableStateOf<FasePipeline?>(null) }
+    val fasiAttive = FasePipeline.ordered.filter { (state.clientiPerFase[it]?.isNotEmpty() == true) }
+    val faseSel = selected?.takeIf { fasiAttive.contains(it) } ?: fasiAttive.firstOrNull() ?: FasePipeline.ordered.first()
+    val clientiSel = state.clientiPerFase[faseSel] ?: emptyList()
+    val totEur = clientiSel.sumOf { it.importoPreventivato ?: 0.0 }
+    val faseIndex = FasePipeline.ordered.indexOf(faseSel) + 1
 
     Column(
         modifier = Modifier
@@ -70,10 +80,13 @@ fun PipelineScreen(
             subtitle = stringResource(R.string.pipeline_subtitle, state.totaleClienti, state.fasiAttive),
             trailing = {
                 Box(
-                    modifier = Modifier
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(tokens.accentBase),
+                    modifier = Modifier.size(36.dp).clip(CircleShape).border(1.dp, tokens.line, CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Outlined.FilterList, contentDescription = null, tint = tokens.muted, modifier = Modifier.size(16.dp))
+                }
+                Box(
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(tokens.accentBase),
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.content_desc_add), tint = Color.White, modifier = Modifier.size(18.dp))
@@ -81,94 +94,81 @@ fun PipelineScreen(
             },
         )
 
-        // View toggle
-        Row(
-            modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp),
+        // Chip filtro per fase
+        LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FreelaChip(stringResource(R.string.pipeline_view_kanban), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.pipeline_view_lista), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.pipeline_view_calendario), tone = ChipTone.Neutral)
-        }
-
-        Spacer(Modifier.height(14.dp))
-
-        // Pipeline verticale: ogni fase è una riga (titolo a sinistra, clienti in scroll orizzontale di fianco).
-        // L'utente scorre in giù per vedere tutte le fasi.
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(18.dp),
-        ) {
-            items(FasePipeline.ordered) { fase ->
-                StageRow(
-                    fase = fase,
-                    clienti = state.clientiPerFase[fase] ?: emptyList(),
-                    onTapCliente = onNavigateToCliente,
+            items(fasiAttive) { fase ->
+                StageFilterChip(
+                    label = ctx.getString(fase.shortRes),
+                    count = state.clientiPerFase[fase]?.size ?: 0,
+                    color = stageColor(fase),
+                    selected = fase == faseSel,
+                    onClick = { selected = fase },
                 )
             }
         }
-    }
-}
 
-@Composable
-private fun StageRow(
-    fase: FasePipeline,
-    clienti: List<Cliente>,
-    onTapCliente: (Long) -> Unit,
-) {
-    val tokens = Freela.tokens
-    val ctx = LocalContext.current
-    val color = stageColor(fase)
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        // Titolo di fianco alla riga di clienti
-        Column(
+        // Header fase corrente
+        Row(
             modifier = Modifier
-                .width(96.dp)
-                .padding(start = 22.dp, top = 4.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(top = 14.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.Bottom,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Box(Modifier.size(6.dp).clip(CircleShape).background(color))
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = ctx.getString(fase.shortRes).uppercase(),
-                    color = tokens.ink,
+                    text = stringResource(R.string.pipeline_fase_di, faseIndex, FasePipeline.ordered.size),
+                    color = tokens.faint,
                     style = tokens.typeExtras.monoCap,
                 )
+                Text(
+                    text = ctx.getString(faseSel.labelRes),
+                    color = tokens.ink,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = (-0.4).sp,
+                )
             }
-            Text(
-                text = "${clienti.size}",
-                color = tokens.faint,
-                style = tokens.typeExtras.monoMeta,
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = stringResource(R.string.pipeline_clienti_label).uppercase(),
+                    color = tokens.faint,
+                    style = tokens.typeExtras.monoMeta,
+                )
+                Text(
+                    text = "${clientiSel.size} · €${String.format(Locale.ITALIAN, "%.1f", totEur / 1000.0)}k",
+                    color = tokens.ink,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
         }
 
-        if (clienti.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 22.dp)
-                    .border(width = 1.5.dp, color = tokens.line, shape = RoundedCornerShape(18.dp))
-                    .padding(vertical = 18.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(stringResource(R.string.pipeline_empty_column), color = tokens.faint, fontSize = 12.sp)
-            }
-        } else {
-            LazyRow(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(end = 22.dp),
-            ) {
-                items(clienti) { c ->
-                    PipelineCard(c, color, onTap = { onTapCliente(c.id) }, modifier = Modifier.width(220.dp))
+        // Lista verticale clienti della fase
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            if (clientiSel.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.5.dp, tokens.line, RoundedCornerShape(18.dp))
+                            .padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(stringResource(R.string.pipeline_empty_column), color = tokens.faint, fontSize = 12.sp)
+                    }
+                }
+            } else {
+                items(clientiSel) { c ->
+                    PipelineCard(c, stageColor(faseSel), onTap = { onNavigateToCliente(c.id) })
                 }
             }
         }
@@ -176,46 +176,75 @@ private fun StageRow(
 }
 
 @Composable
-private fun PipelineCard(c: Cliente, stageC: Color, onTap: () -> Unit, modifier: Modifier = Modifier) {
+private fun StageFilterChip(
+    label: String,
+    count: Int,
+    color: Color,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
     val tokens = Freela.tokens
-    val bg = lerp(tokens.surface, stageC, 0.06f)
-    FreelaCard(
-        modifier = modifier,
-        background = bg,
-        padding = PaddingValues(0.dp),
-        onClick = onTap,
+    Row(
+        modifier = Modifier
+            .clip(PillShape)
+            .background(if (selected) tokens.accentBase else tokens.chipBg)
+            .clickable { onClick() }
+            .padding(horizontal = 11.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            // Pattern #2 — barretta sinistra 3.dp stage color
-            Box(
-                modifier = Modifier
-                    .width(3.dp)
-                    .fillMaxHeight()
-                    .background(stageC),
-            )
-            Column(modifier = Modifier.padding(14.dp)) {
-                Row(verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Avatar(name = c.nome, size = 34.dp)
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(c.nome, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                        val sub = listOfNotNull(c.tags.firstOrNull()?.nome, c.fonteAcquisizione).joinToString(" · ")
-                        if (sub.isNotEmpty()) {
-                            Text(sub, color = tokens.muted, fontSize = 11.5f.sp, style = MaterialTheme.typography.bodySmall)
-                        }
-                    }
+        Box(Modifier.size(6.dp).clip(CircleShape).background(if (selected) Color.White else color))
+        Text(label, color = if (selected) Color.White else tokens.muted, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+        Text(
+            "$count",
+            color = if (selected) Color.White.copy(alpha = 0.85f) else tokens.faint,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@Composable
+private fun PipelineCard(c: Cliente, stageC: Color, onTap: () -> Unit) {
+    val tokens = Freela.tokens
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(tokens.surface)
+            .border(1.dp, tokens.lineSoft, RoundedCornerShape(16.dp))
+            .clickable { onTap() }
+            .height(IntrinsicSize.Min),
+    ) {
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(stageC),
+        )
+        Row(
+            modifier = Modifier.weight(1f).padding(horizontal = 14.dp, vertical = 13.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Avatar(name = c.nome, size = 38.dp)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(c.nome, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                val sub = listOfNotNull(c.tags.firstOrNull()?.nome, c.fonteAcquisizione).joinToString(" · ")
+                if (sub.isNotEmpty()) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(sub, color = tokens.muted, fontSize = 12.sp, style = MaterialTheme.typography.bodySmall)
                 }
-                c.importoPreventivato?.let { budget ->
-                    Text(
-                        text = "€${String.format(Locale.ITALIAN, "%,.0f", budget)}",
-                        color = tokens.ink,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(top = 8.dp),
-                        style = tokens.typeExtras.monoMeta.copy(fontSize = 12.sp, fontWeight = FontWeight.SemiBold),
-                    )
-                }
+            }
+            c.importoPreventivato?.let { budget ->
+                Text(
+                    text = "€${String.format(Locale.ITALIAN, "%.1f", budget / 1000.0)}k",
+                    color = tokens.ink,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    style = tokens.typeExtras.monoMeta.copy(fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+                )
             }
         }
     }
 }
-
