@@ -70,8 +70,10 @@ class FinanzeViewModel @Inject constructor(
             val byId = clienti.associateBy { it.id }
             val fattureRighe = fatture.map { f -> FatturaRiga(f, byId[f.clienteId], f.statoUi(now)) }
             val preventiviRighe = preventivi.map { p -> PreventivoRiga(p, byId[p.clienteId]) }
-            val attesi = fatture.filter { it.statoUi(now) == StatoFatturaUi.EMESSA }.sumOf { it.importo }
-            val ritardo = fatture.filter { it.statoUi(now) == StatoFatturaUi.IN_RITARDO }.sumOf { it.importo }
+            // Attesi e in ritardo del mese selezionato (per coerenza dell'hero col mese mostrato).
+            val fattureDelMese = fatture.filter { it.dataEmissione in startMese..endMese }
+            val attesi = fattureDelMese.filter { it.statoUi(now) == StatoFatturaUi.EMESSA }.sumOf { it.importo }
+            val ritardo = fattureDelMese.filter { it.statoUi(now) == StatoFatturaUi.IN_RITARDO }.sumOf { it.importo }
             FinanzeUiState(
                 meseLabel = label,
                 meseOffset = offset,
