@@ -32,6 +32,9 @@ class SettingsManager @Inject constructor(
         val NOTIF_SCADENZE = booleanPreferencesKey("notif_scadenze_fatture")
         val NOTIF_PROMEMORIA = booleanPreferencesKey("notif_promemoria_clienti")
         val NOTIF_RIEPILOGO = booleanPreferencesKey("notif_riepilogo_giornaliero")
+        val NOME_UTENTE = stringPreferencesKey("nome_utente")
+        val RUOLO = stringPreferencesKey("ruolo_utente")
+        val VALUTA = stringPreferencesKey("valuta")
     }
 
     override val onboardingCompleted: Flow<Boolean> =
@@ -61,8 +64,25 @@ class SettingsManager @Inject constructor(
     override val notifRiepilogoGiornaliero: Flow<Boolean> =
         context.dataStore.data.map { it[Keys.NOTIF_RIEPILOGO] ?: false }
 
+    override val nomeUtente: Flow<String?> =
+        context.dataStore.data.map { it[Keys.NOME_UTENTE]?.ifBlank { null } }
+
+    override val ruolo: Flow<String?> =
+        context.dataStore.data.map { it[Keys.RUOLO]?.ifBlank { null } }
+
+    override val valuta: Flow<String> =
+        context.dataStore.data.map { it[Keys.VALUTA] ?: "EUR" }
+
     override suspend fun completaOnboarding() {
         context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = true }
+    }
+
+    override suspend fun impostaProfilo(nome: String?, ruolo: String?, valuta: String) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.NOME_UTENTE] = nome?.trim().orEmpty()
+            prefs[Keys.RUOLO] = ruolo.orEmpty()
+            prefs[Keys.VALUTA] = valuta
+        }
     }
 
     override suspend fun impostaPersona(persona: PersonaDemo) {

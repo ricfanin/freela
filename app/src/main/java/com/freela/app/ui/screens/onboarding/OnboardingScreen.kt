@@ -114,9 +114,18 @@ fun OnboardingScreen(
 
     val isLast = step == ONB_STEPS - 1
 
+    fun completa() {
+        viewModel.completaOnboarding(
+            nome = name,
+            ruolo = context.getString(role.labelRes),
+            valuta = currency.label,
+            onDone = onStart,
+        )
+    }
+
     fun avanti() {
         when {
-            isLast -> viewModel.completaOnboarding(onStart)
+            isLast -> completa()
             step == 2 && !notifConcesse && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ->
                 permessoLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
             else -> step++
@@ -163,7 +172,7 @@ fun OnboardingScreen(
                     color = tokens.muted,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier
-                        .clickable { viewModel.completaOnboarding(onStart) }
+                        .clickable { completa() }
                         .padding(6.dp),
                 )
             } else {
@@ -230,7 +239,7 @@ fun OnboardingScreen(
             )
 
             when (step) {
-                0 -> SecondaryAction(text = stringResource(R.string.onboarding_cta_login)) { viewModel.completaOnboarding(onStart) }
+                0 -> SecondaryAction(text = stringResource(R.string.onboarding_cta_login)) { completa() }
                 2 -> SecondaryAction(text = stringResource(R.string.onboarding_notifiche_not_now)) { step++ }
             }
         }

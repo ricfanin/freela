@@ -20,13 +20,19 @@ class OnboardingViewModel @Inject constructor(
      * Completa onboarding: setta flag, seedda Giulia se nessuna persona scelta.
      * Onclick "Inizia" della schermata.
      */
-    fun completaOnboarding(onDone: () -> Unit) {
+    fun completaOnboarding(
+        nome: String = "",
+        ruolo: String? = null,
+        valuta: String = "EUR",
+        onDone: () -> Unit,
+    ) {
         viewModelScope.launch {
             val personaCorrente = settings.personaCorrente.first()
             if (personaCorrente == null) {
                 seed.seed(PersonaDemo.GIULIA)
                 settings.impostaPersona(PersonaDemo.GIULIA)
             }
+            settings.impostaProfilo(nome, ruolo, valuta)
             settings.completaOnboarding()
             onDone()
         }
