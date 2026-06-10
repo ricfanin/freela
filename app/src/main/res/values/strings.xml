@@ -67,6 +67,27 @@
     <string name="nav_pipeline">Pipeline</string>
     <string name="nav_clienti">Clienti</string>
     <string name="nav_task">Task</string>
+    <string name="nav_progetti">Progetti</string>
+    <string name="progetti_title">Progetti</string>
+    <string name="progetti_subtitle">%1$d aperti · %2$d completati</string>
+    <string name="progetti_filter_tutti">Tutti</string>
+    <string name="progetti_filter_in_corso">In corso</string>
+    <string name="progetti_filter_da_iniziare">Da iniziare</string>
+    <string name="progetti_filter_in_scadenza">In scadenza</string>
+    <string name="progetti_section_aperti">Aperti</string>
+    <string name="progetti_section_completati">Completati di recente</string>
+    <string name="progetto_stato_in_corso">In corso</string>
+    <string name="progetto_stato_da_iniziare">Da iniziare</string>
+    <string name="progetto_stato_completato">Completato</string>
+    <string name="progetto_n_task">%1$d task</string>
+    <string name="progetto_stat_ore">Ore</string>
+    <string name="progetto_stat_budget">Budget</string>
+    <string name="progetto_stat_task">Task</string>
+    <string name="progetto_avanzamento">Avanzamento</string>
+    <string name="progetto_tab_task">Task</string>
+    <string name="progetto_tab_documenti">Documenti</string>
+    <string name="progetto_no_task">Nessun task in questo progetto</string>
+    <string name="progetto_no_documenti">Nessun documento allegato</string>
     <string name="nav_finanze">Finanze</string>
 
     <!-- Placeholder (build demo) -->

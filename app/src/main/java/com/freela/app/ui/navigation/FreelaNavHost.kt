@@ -24,6 +24,8 @@ import com.freela.app.ui.screens.finanze.FinanzeScreen
 import com.freela.app.ui.screens.oggi.OggiScreen
 import com.freela.app.ui.screens.onboarding.OnboardingScreen
 import com.freela.app.ui.screens.pipeline.PipelineScreen
+import com.freela.app.ui.screens.progetti.ProgettiScreen
+import com.freela.app.ui.screens.progetti.ProgettoDetailScreen
 import com.freela.app.ui.screens.settings.SettingsScreen
 import com.freela.app.ui.screens.storico.StoricoScreen
 import com.freela.app.ui.screens.task.TaskScreen
@@ -117,6 +119,17 @@ fun FreelaNavHost(
                 )
             }
             composable(Routes.TASK) { TaskScreen() }
+            composable(Routes.PROGETTI) {
+                ProgettiScreen(
+                    onNavigateToProgetto = { id -> navController.navigate(Routes.progettoDetail(id)) },
+                )
+            }
+            composable(
+                route = Routes.PROGETTO_DETAIL,
+                arguments = listOf(navArgument(Routes.ARG_CLIENTE_ID) { type = NavType.LongType }),
+            ) {
+                ProgettoDetailScreen(onBack = { navController.popBackStack() })
+            }
             composable(Routes.TIMER) {
                 TimerScreen(onBack = { navController.popBackStack() })
             }

@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Euro
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material.icons.outlined.ViewKanban
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +40,7 @@ enum class FreelaTab(val labelRes: Int, val icon: ImageVector) {
     OGGI(R.string.nav_oggi, Icons.Outlined.Home),
     PIPELINE(R.string.nav_pipeline, Icons.Outlined.ViewKanban),
     CLIENTI(R.string.nav_clienti, Icons.Outlined.Person),
-    TASK(R.string.nav_task, Icons.Outlined.TaskAlt),
+    PROGETTI(R.string.nav_progetti, Icons.Outlined.Description),
     FINANZE(R.string.nav_finanze, Icons.Outlined.Euro);
 }
 
