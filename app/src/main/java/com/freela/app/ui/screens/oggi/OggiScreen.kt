@@ -135,7 +135,89 @@ fun OggiScreen(
                 oreMese = state.oreMese,
                 numClienti = state.numClienti,
                 obiettivo = state.obiettivo,
+                periodoIndex = when (state.periodo) {
+                    PeriodoOggi.SETTIMANA -> 0
+                    PeriodoOggi.MESE -> 1
+                    PeriodoOggi.ANNO -> 2
+                },
+                onPeriodo = { i ->
+                    viewModel.selezionaPeriodo(
+                        when (i) {
+                            0 -> PeriodoOggi.SETTIMANA
+                            2 -> PeriodoOggi.ANNO
+                            else -> PeriodoOggi.MESE
+                        },
+                    )
+                },
             )
+        }
+
+        // Sezioni operative (PRD FR-16)
+        if (state.daContattare.isNotEmpty()) {
+            SezioneOperativa(
+                titolo = stringResource(R.string.oggi_section_contattare),
+                voci = state.daContattare,
+                onClickVoce = { it.clienteId?.let(onNavigateToCliente) },
+            )
+        }
+        if (state.daConsegnare.isNotEmpty()) {
+            SezioneOperativa(
+                titolo = stringResource(R.string.oggi_section_consegnare),
+                voci = state.daConsegnare,
+                onClickVoce = { it.clienteId?.let(onNavigateToCliente) },
+            )
+        }
+        if (state.pagamenti.isNotEmpty()) {
+            SezioneOperativa(
+                titolo = stringResource(R.string.oggi_section_pagamenti),
+                voci = state.pagamenti,
+                onClickVoce = { it.clienteId?.let(onNavigateToCliente) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun SezioneOperativa(
+    titolo: String,
+    voci: List<OggiVoce>,
+    onClickVoce: (OggiVoce) -> Unit,
+) {
+    val tokens = Freela.tokens
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        SectionHead(label = titolo, count = voci.size)
+        Spacer(Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(18.dp))
+                .background(tokens.surface)
+                .border(1.dp, tokens.lineSoft, RoundedCornerShape(18.dp)),
+        ) {
+            voci.forEachIndexed { i, voce ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onClickVoce(voce) }
+                        .padding(horizontal = 16.dp, vertical = 13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(voce.titolo, color = tokens.ink, fontSize = 13.5f.sp, fontWeight = FontWeight.SemiBold)
+                        Text(voce.sottotitolo, color = tokens.muted, fontSize = 12.sp)
+                    }
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowForward,
+                        contentDescription = null,
+                        tint = tokens.faint,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+                if (i < voci.size - 1) {
+                    Box(Modifier.fillMaxWidth().height(1.dp).background(tokens.lineSoft))
+                }
+            }
         }
     }
 }
@@ -302,6 +384,8 @@ private fun RiassuntoCard(
     oreMese: Float,
     numClienti: Int,
     obiettivo: Double,
+    periodoIndex: Int,
+    onPeriodo: (Int) -> Unit,
 ) {
     val tokens = Freela.tokens
     Column(
@@ -322,11 +406,12 @@ private fun RiassuntoCard(
                 horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 listOf("S", "M", "A").forEachIndexed { i, t ->
-                    val on = i == 1
+                    val on = i == periodoIndex
                     Box(
                         modifier = Modifier
                             .clip(PillShape)
                             .background(if (on) tokens.surface else Color.Transparent)
+                            .clickable { onPeriodo(i) }
                             .padding(horizontal = 8.dp, vertical = 3.dp),
                     ) {
                         Text(t, color = if (on) tokens.ink else tokens.muted, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)

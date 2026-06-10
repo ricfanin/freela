@@ -22,6 +22,9 @@ class LocalTimeTrackingRepository @Inject constructor(
     override fun osservaDurataTotaleMillis(clienteId: Long, now: Long): Flow<Long> =
         dao.osservaDurataTotaleMillisCliente(clienteId, now)
 
+    override fun osservaOreTotaliPeriodoMillis(start: Long, end: Long, now: Long): Flow<Long> =
+        dao.osservaDurataPeriodoMillis(start, end, now)
+
     override suspend fun avvia(clienteId: Long, descrizione: String?): Long =
         dao.insert(SessioneLavoroEntity(clienteId = clienteId, inizio = System.currentTimeMillis(), descrizione = descrizione))
 

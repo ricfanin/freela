@@ -25,6 +25,13 @@ interface SessioneLavoroDao {
     @Query("SELECT * FROM sessioni_lavoro WHERE fine IS NULL LIMIT 1")
     fun osservaSessioneInCorso(): Flow<SessioneLavoroEntity?>
 
+    @Query("""
+        SELECT IFNULL(SUM(IFNULL(fine, :now) - inizio), 0)
+        FROM sessioni_lavoro
+        WHERE inizio BETWEEN :start AND :end
+    """)
+    fun osservaDurataPeriodoMillis(start: Long, end: Long, now: Long): Flow<Long>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(s: SessioneLavoroEntity): Long
 
