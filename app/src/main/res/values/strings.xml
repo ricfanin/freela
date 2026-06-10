@@ -193,6 +193,19 @@
     <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
     <string name="settings_section_persona">Persona demo</string>
+    <string name="settings_tema_system_sub">Segue le impostazioni del dispositivo</string>
+    <string name="settings_tema_light_sub">Tema luminoso</string>
+    <string name="settings_tema_dark_sub">Tema notturno</string>
+    <string name="settings_section_notifiche">Notifiche</string>
+    <string name="settings_notif_scadenze">Scadenze fatture</string>
+    <string name="settings_notif_scadenze_sub">3 giorni prima</string>
+    <string name="settings_notif_promemoria">Promemoria clienti</string>
+    <string name="settings_notif_promemoria_sub">Follow-up settimanale</string>
+    <string name="settings_notif_riepilogo">Riepilogo giornaliero</string>
+    <string name="settings_notif_riepilogo_sub">Alle 09:00</string>
+    <string name="settings_section_app">App</string>
+    <string name="settings_versione_label">Versione</string>
+    <string name="settings_versione_value">1.0.0-beta</string>
     <string name="settings_persona_giulia">Giulia · Social Media Manager</string>
     <string name="settings_persona_luca">Luca · Web Designer</string>
     <string name="settings_persona_sara">Sara · Fotografa</string>

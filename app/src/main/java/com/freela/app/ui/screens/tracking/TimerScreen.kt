@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
@@ -227,7 +228,58 @@ fun TimerScreen(
                 }
             }
         }
+
+        // Sessioni recenti
+        if (state.sessioniRecenti.isNotEmpty()) {
+            Column(modifier = Modifier.padding(horizontal = 22.dp).padding(bottom = 24.dp)) {
+                SectionHead(
+                    label = stringResource(R.string.timer_section_recenti),
+                    actionText = "Tutte →",
+                )
+                FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
+                    Column {
+                        state.sessioniRecenti.forEachIndexed { i, s ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                Text(
+                                    formatGiorno(s.inizio).uppercase(),
+                                    color = tokens.faint,
+                                    style = tokens.typeExtras.monoCap,
+                                    modifier = Modifier.width(46.dp),
+                                )
+                                Text(
+                                    s.descrizione ?: stringResource(R.string.timer_no_activity),
+                                    color = tokens.ink,
+                                    fontSize = 13.5f.sp,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Text(
+                                    formatDurataSessione(s.inizio, s.fine),
+                                    color = tokens.muted,
+                                    style = tokens.typeExtras.monoMeta,
+                                )
+                            }
+                            if (i < state.sessioniRecenti.size - 1) {
+                                Box(Modifier.fillMaxWidth().height(1.dp).background(tokens.lineSoft))
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
+}
+
+private fun formatGiorno(millis: Long): String =
+    SimpleDateFormat("EEE d", Locale.ITALIAN).format(Date(millis))
+
+private fun formatDurataSessione(inizio: Long, fine: Long?): String {
+    val durata = ((fine ?: System.currentTimeMillis()) - inizio).coerceAtLeast(0)
+    val totalMin = durata / 60000
+    return String.format(Locale.getDefault(), "%d:%02d", totalMin / 60, totalMin % 60)
 }
 
 private fun formatElapsed(millis: Long): String {
