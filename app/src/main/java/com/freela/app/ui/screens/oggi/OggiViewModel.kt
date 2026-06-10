@@ -3,13 +3,11 @@ package com.freela.app.ui.screens.oggi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
-import com.freela.app.domain.model.Fattura
 import com.freela.app.domain.model.PersonaDemo
-import com.freela.app.domain.model.Task
+import com.freela.app.domain.model.SessioneLavoro
 import com.freela.app.domain.repository.ClienteRepository
 import com.freela.app.domain.repository.FinanzeRepository
 import com.freela.app.domain.repository.SettingsRepository
-import com.freela.app.domain.repository.TaskRepository
 import com.freela.app.domain.repository.TimeTrackingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Calendar
@@ -19,87 +17,76 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
+/**
+ * Home "Oggi" centrata sulla sessione di lavoro in corso (come da mockup Figma):
+ * card timer in evidenza + riassunto finanziario del mese.
+ */
 data class OggiUiState(
     val persona: PersonaDemo? = null,
-    val totRitardo: Double = 0.0,
-    val totAttesi: Double = 0.0,
-    val totOreSettimana: Float = 0f,
-    val daContattare: List<TaskConCliente> = emptyList(),
-    val daConsegnare: List<TaskConCliente> = emptyList(),
-    val pagamenti: List<FatturaConCliente> = emptyList(),
-    val suggerimento: SuggerimentoUi? = null,
+    val sessione: SessioneLavoro? = null,
+    val clienteAttivo: Cliente? = null,
+    val fatturato: Double = 0.0,
+    val incassato: Double = 0.0,
+    val attesi: Double = 0.0,
+    val inRitardo: Double = 0.0,
+    val numClienti: Int = 0,
+    val oreMese: Float = 0f,
+    val obiettivo: Double = 6000.0,
     val isLoading: Boolean = true,
 )
-
-data class TaskConCliente(val task: Task, val cliente: Cliente?)
-data class FatturaConCliente(val fattura: Fattura, val cliente: Cliente?, val giorniRitardo: Int)
-data class SuggerimentoUi(val testo: String, val clienteNome: String?)
 
 @HiltViewModel
 class OggiViewModel @Inject constructor(
     settings: SettingsRepository,
     clienteRepo: ClienteRepository,
-    taskRepo: TaskRepository,
-    private val timeRepo: TimeTrackingRepository,
+    timeRepo: TimeTrackingRepository,
     finanzeRepo: FinanzeRepository,
 ) : ViewModel() {
 
     private val now = System.currentTimeMillis()
+    private val startMese = Calendar.getInstance().apply {
+        set(Calendar.DAY_OF_MONTH, 1); set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+    private val endMese = Calendar.getInstance().apply {
+        timeInMillis = startMese; add(Calendar.MONTH, 1)
+    }.timeInMillis - 1
+
+    private data class Base(
+        val persona: PersonaDemo?,
+        val sessione: SessioneLavoro?,
+        val clienti: List<Cliente>,
+        val incassato: Double,
+        val attesi: Double,
+    )
 
     val state: StateFlow<OggiUiState> = combine(
         settings.personaCorrente,
+        timeRepo.osservaInCorso(),
         clienteRepo.osservaTutti(),
-        taskRepo.osservaAperti(),
-        finanzeRepo.osservaFattureNonPagate(),
+        finanzeRepo.osservaIncassatoPeriodo(startMese, endMese),
         finanzeRepo.osservaTotaleAttesi(now),
-    ) { persona, clienti, tasks, fatture, totAttesi ->
-        val clientiById = clienti.associateBy { it.id }
-
-        val (inRitardo, _) = fatture.partition { it.dataScadenza < now }
-        val totRitardo = inRitardo.sumOf { it.importo }
-
-        val endOfDay = endOfTodayMillis()
-        val daContattare = tasks
-            .filter { it.scadenza <= endOfDay }
-            .filter { it.clienteId != null }
-            .take(4)
-            .map { TaskConCliente(it, clientiById[it.clienteId]) }
-        val daConsegnare = tasks
-            .filter { it.scadenza > endOfDay && it.scadenza <= endOfDay + 7L * 86400000L }
-            .take(4)
-            .map { TaskConCliente(it, clientiById[it.clienteId]) }
-        val pagamenti = fatture.take(4).map { f ->
-            val giorniRitardo = if (f.dataScadenza < now)
-                ((now - f.dataScadenza) / 86400000L).toInt() else 0
-            FatturaConCliente(f, clientiById[f.clienteId], giorniRitardo)
-        }
-
-        val suggerimento = tasks.firstOrNull { it.origine == com.freela.app.domain.model.OrigineTask.SUGGERITO }
-            ?.let { sug ->
-                val nome = clientiById[sug.clienteId]?.nome
-                SuggerimentoUi(testo = sug.titolo, clienteNome = nome)
-            }
-
+    ) { persona, sessione, clienti, incassato, attesi ->
+        Base(persona, sessione, clienti, incassato, attesi)
+    }.combine(finanzeRepo.osservaTotaleRitardo(now)) { b, ritardo ->
+        val clienteAttivo = b.sessione?.let { s -> b.clienti.firstOrNull { it.id == s.clienteId } }
         OggiUiState(
-            persona = persona,
-            totRitardo = totRitardo,
-            totAttesi = totAttesi,
-            totOreSettimana = computeOreSettimanaPlaceholder(),
-            daContattare = daContattare,
-            daConsegnare = daConsegnare,
-            pagamenti = pagamenti,
-            suggerimento = suggerimento,
+            persona = b.persona,
+            sessione = b.sessione,
+            clienteAttivo = clienteAttivo,
+            fatturato = b.incassato + b.attesi + ritardo,
+            incassato = b.incassato,
+            attesi = b.attesi,
+            inRitardo = ritardo,
+            numClienti = b.clienti.size,
+            oreMese = ORE_MESE_PLACEHOLDER,
+            obiettivo = 6000.0,
             isLoading = false,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), OggiUiState())
 
-    private fun endOfTodayMillis(): Long {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 23); set(Calendar.MINUTE, 59); set(Calendar.SECOND, 59); set(Calendar.MILLISECOND, 999)
-        }
-        return cal.timeInMillis
+    private companion object {
+        // V1: ore mese aggregate non ancora calcolate dalle sessioni reali (PRD §11.4).
+        const val ORE_MESE_PLACEHOLDER = 47f
     }
-
-    // V1: somma fissa da seed (PRD §11.4 fase 8 fa lo Sessioni reali).
-    private fun computeOreSettimanaPlaceholder(): Float = 14.5f
 }

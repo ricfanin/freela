@@ -75,6 +75,11 @@
 
     <!-- Oggi -->
     <string name="oggi_greeting">Buongiorno, %1$s.</string>
+    <string name="oggi_section_riassunto">Riassunto</string>
+    <string name="oggi_sessione_in_corso">Sessione in corso</string>
+    <string name="oggi_sessione_hint">in registrazione · stop con notifica</string>
+    <string name="oggi_pausa">Pausa</string>
+    <string name="oggi_avvia_timer">Avvia timer</string>
     <string name="oggi_stat_in_ritardo">In ritardo</string>
     <string name="oggi_stat_attesi">Attesi</string>
     <string name="oggi_stat_ore_settimana">Ore sett.</string>
@@ -87,11 +92,13 @@
 
     <!-- Pipeline -->
     <string name="pipeline_title">Pipeline</string>
-    <string name="pipeline_subtitle">%1$d clienti in %2$d fasi</string>
+    <string name="pipeline_subtitle">%1$d clienti · %2$d fasi attive</string>
     <string name="pipeline_view_kanban">Kanban</string>
     <string name="pipeline_view_lista">Lista</string>
     <string name="pipeline_view_calendario">Cal.</string>
-    <string name="pipeline_empty_column">Trascina qui</string>
+    <string name="pipeline_empty_column">Nessun cliente in questa fase</string>
+    <string name="pipeline_fase_di">Fase %1$d di %2$d</string>
+    <string name="pipeline_clienti_label">clienti</string>
 
     <!-- Clienti -->
     <string name="clienti_title">Clienti</string>
@@ -182,7 +189,6 @@
     <string name="storico_section_top">Top clienti del mese</string>
     <string name="storico_label_ore_per_cliente">Ore tracciate per cliente</string>
     <string name="storico_label_pattern">Pattern del mese</string>
-    <string name="storico_pattern_text">Questo mese hai dedicato più ore a %1$s, circa %2$s ore di lavoro.</string>
 
     <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
