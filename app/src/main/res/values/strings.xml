@@ -219,6 +219,25 @@
     <string name="finanze_status_pagata">pagata</string>
     <string name="finanze_status_ritardo">ritardo</string>
     <string name="finanze_status_emessa">emessa</string>
+    <!-- Finanze · creazione e azioni -->
+    <string name="finanze_nuovo_titolo">Nuova voce</string>
+    <string name="finanze_tipo_fattura">Fattura</string>
+    <string name="finanze_tipo_preventivo">Preventivo</string>
+    <string name="finanze_campo_cliente">Cliente</string>
+    <string name="finanze_campo_importo">Importo (€)</string>
+    <string name="finanze_campo_numero">Numero</string>
+    <string name="finanze_campo_giorni">Giorni alla scadenza</string>
+    <string name="finanze_campo_note">Note (opzionale)</string>
+    <string name="finanze_salva">Salva</string>
+    <string name="finanze_annulla">Annulla</string>
+    <string name="finanze_nessun_cliente">Crea prima un cliente per registrare fatture e preventivi.</string>
+    <string name="finanze_azioni_fattura">Fattura #%1$s</string>
+    <string name="finanze_azione_segna_pagata">Segna come pagata</string>
+    <string name="finanze_azione_elimina">Elimina</string>
+    <string name="finanze_azioni_preventivo">Preventivo</string>
+    <string name="finanze_prev_accetta">Segna accettato</string>
+    <string name="finanze_prev_rifiuta">Segna rifiutato</string>
+    <string name="finanze_mese_titolo">Seleziona mese</string>
 
     <!-- Storico -->
     <string name="storico_title">Storico</string>

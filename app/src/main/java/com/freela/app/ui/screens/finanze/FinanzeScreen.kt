@@ -1,9 +1,12 @@
 package com.freela.app.ui.screens.finanze
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,32 +24,41 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
+import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.StatoFatturaUi
+import com.freela.app.domain.model.StatoPreventivo
+import com.freela.app.ui.components.ChipSize
+import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.FreelaCard
 import com.freela.app.ui.components.FreelaChip
-import com.freela.app.ui.components.ChipTone
-import com.freela.app.ui.components.ChipSize
 import com.freela.app.ui.components.ScreenHeader
 import com.freela.app.ui.components.SectionHead
 import com.freela.app.ui.theme.Freela
 import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -57,10 +69,10 @@ fun FinanzeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
 
-    val mese = remember {
-        val df = SimpleDateFormat("MMMM yyyy", Locale.ITALIAN)
-        df.format(Date()).replaceFirstChar { it.uppercase() }
-    }
+    var showNuovo by remember { mutableStateOf(false) }
+    var showMese by remember { mutableStateOf(false) }
+    var fatturaAzioni by remember { mutableStateOf<FatturaRiga?>(null) }
+    var preventivoAzioni by remember { mutableStateOf<PreventivoRiga?>(null) }
 
     Column(
         modifier = Modifier
@@ -71,19 +83,27 @@ fun FinanzeScreen(
     ) {
         ScreenHeader(
             title = stringResource(R.string.finanze_title),
-            subtitle = mese,
+            subtitle = state.meseLabel,
             trailing = {
                 Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).background(Color.Transparent),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(Color.Transparent)
+                        .clickable { showMese = true },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = tokens.muted, modifier = Modifier.size(16.dp))
                 }
                 Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).background(tokens.accentBase),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(tokens.accentBase)
+                        .clickable { showNuovo = true },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(Icons.Outlined.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                    Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.content_desc_add), tint = Color.White, modifier = Modifier.size(18.dp))
                 }
             },
         )
@@ -146,7 +166,10 @@ fun FinanzeScreen(
                             StatoFatturaUi.EMESSA -> tokens.accentBase
                         }
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { fatturaAzioni = riga }
+                                .padding(horizontal = 16.dp, vertical = 14.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(14.dp),
                         ) {
@@ -201,7 +224,10 @@ fun FinanzeScreen(
                     Column {
                         state.preventivi.forEachIndexed { i, riga ->
                             Row(
-                                modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { preventivoAzioni = riga }
+                                    .padding(vertical = 10.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween,
                             ) {
@@ -232,6 +258,275 @@ fun FinanzeScreen(
             }
         }
     }
+
+    if (showNuovo) {
+        NuovaVoceFinanzaDialog(
+            clienti = state.clienti,
+            suggerimentoNumero = numeroSuggerito(state.fatture.size),
+            onDismiss = { showNuovo = false },
+            onFattura = { numero, clienteId, importo, scadenza ->
+                viewModel.creaFattura(numero, clienteId, importo, scadenza)
+                showNuovo = false
+            },
+            onPreventivo = { clienteId, importo, note ->
+                viewModel.creaPreventivo(clienteId, importo, note)
+                showNuovo = false
+            },
+        )
+    }
+
+    if (showMese) {
+        MeseDialog(
+            selezionato = state.meseOffset,
+            onDismiss = { showMese = false },
+            onPick = { offset ->
+                viewModel.selezionaMese(offset)
+                showMese = false
+            },
+        )
+    }
+
+    fatturaAzioni?.let { riga ->
+        AzioniFatturaDialog(
+            riga = riga,
+            onDismiss = { fatturaAzioni = null },
+            onSegnaPagata = { viewModel.segnaPagata(riga.fattura.id); fatturaAzioni = null },
+            onElimina = { viewModel.eliminaFattura(riga.fattura.id); fatturaAzioni = null },
+        )
+    }
+
+    preventivoAzioni?.let { riga ->
+        AzioniPreventivoDialog(
+            riga = riga,
+            onDismiss = { preventivoAzioni = null },
+            onAccetta = { viewModel.cambiaStatoPreventivo(riga.preventivo.id, StatoPreventivo.ACCETTATO); preventivoAzioni = null },
+            onRifiuta = { viewModel.cambiaStatoPreventivo(riga.preventivo.id, StatoPreventivo.RIFIUTATO); preventivoAzioni = null },
+            onElimina = { viewModel.eliminaPreventivo(riga.preventivo.id); preventivoAzioni = null },
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun NuovaVoceFinanzaDialog(
+    clienti: List<Cliente>,
+    suggerimentoNumero: String,
+    onDismiss: () -> Unit,
+    onFattura: (numero: String, clienteId: Long, importo: Double, dataScadenza: Long) -> Unit,
+    onPreventivo: (clienteId: Long, importo: Double, note: String?) -> Unit,
+) {
+    var isFattura by remember { mutableStateOf(true) }
+    var clienteId by remember { mutableStateOf(clienti.firstOrNull()?.id) }
+    var importo by remember { mutableStateOf("") }
+    var numero by remember { mutableStateOf(suggerimentoNumero) }
+    var giorni by remember { mutableStateOf("30") }
+    var note by remember { mutableStateOf("") }
+
+    val importoVal = importo.replace(',', '.').toDoubleOrNull() ?: 0.0
+    val valido = clienteId != null && importoVal > 0.0
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                enabled = valido,
+                onClick = {
+                    val cid = clienteId ?: return@TextButton
+                    if (isFattura) {
+                        val gg = giorni.toLongOrNull() ?: 30L
+                        val scadenza = System.currentTimeMillis() + gg * 86_400_000L
+                        onFattura(numero.ifBlank { suggerimentoNumero }, cid, importoVal, scadenza)
+                    } else {
+                        onPreventivo(cid, importoVal, note.ifBlank { null })
+                    }
+                },
+            ) { Text(stringResource(R.string.finanze_salva)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.finanze_annulla)) }
+        },
+        title = { Text(stringResource(R.string.finanze_nuovo_titolo)) },
+        text = {
+            if (clienti.isEmpty()) {
+                Text(stringResource(R.string.finanze_nessun_cliente))
+            } else {
+                Column {
+                    // Tipo
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        FreelaChip(
+                            stringResource(R.string.finanze_tipo_fattura),
+                            tone = if (isFattura) ChipTone.Accent else ChipTone.Neutral,
+                            size = ChipSize.Small,
+                            modifier = Modifier.clickable { isFattura = true },
+                        )
+                        FreelaChip(
+                            stringResource(R.string.finanze_tipo_preventivo),
+                            tone = if (!isFattura) ChipTone.Accent else ChipTone.Neutral,
+                            size = ChipSize.Small,
+                            modifier = Modifier.clickable { isFattura = false },
+                        )
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Text(stringResource(R.string.finanze_campo_cliente), color = Freela.tokens.muted, style = Freela.tokens.typeExtras.monoCap)
+                    Spacer(Modifier.height(6.dp))
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        clienti.forEach { c ->
+                            FreelaChip(
+                                c.nome,
+                                tone = if (c.id == clienteId) ChipTone.Accent else ChipTone.Neutral,
+                                size = ChipSize.Small,
+                                modifier = Modifier.clickable { clienteId = c.id },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = importo,
+                        onValueChange = { v -> importo = v.filter { it.isDigit() || it == '.' || it == ',' } },
+                        label = { Text(stringResource(R.string.finanze_campo_importo)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                    )
+                    if (isFattura) {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = numero,
+                            onValueChange = { numero = it },
+                            label = { Text(stringResource(R.string.finanze_campo_numero)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                        )
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = giorni,
+                            onValueChange = { v -> giorni = v.filter { it.isDigit() } },
+                            label = { Text(stringResource(R.string.finanze_campo_giorni)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true,
+                            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+                        )
+                    } else {
+                        Spacer(Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = note,
+                            onValueChange = { note = it },
+                            label = { Text(stringResource(R.string.finanze_campo_note)) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = false,
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun AzioniFatturaDialog(
+    riga: FatturaRiga,
+    onDismiss: () -> Unit,
+    onSegnaPagata: () -> Unit,
+    onElimina: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.finanze_annulla)) }
+        },
+        title = { Text(stringResource(R.string.finanze_azioni_fattura, riga.fattura.numero)) },
+        text = {
+            Column {
+                if (riga.statoUi != StatoFatturaUi.PAGATA) {
+                    Text(
+                        stringResource(R.string.finanze_azione_segna_pagata),
+                        color = Freela.tokens.success,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().clickable { onSegnaPagata() }.padding(vertical = 12.dp),
+                    )
+                }
+                Text(
+                    stringResource(R.string.finanze_azione_elimina),
+                    color = Freela.tokens.danger,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onElimina() }.padding(vertical = 12.dp),
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun AzioniPreventivoDialog(
+    riga: PreventivoRiga,
+    onDismiss: () -> Unit,
+    onAccetta: () -> Unit,
+    onRifiuta: () -> Unit,
+    onElimina: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.finanze_annulla)) }
+        },
+        title = { Text(stringResource(R.string.finanze_azioni_preventivo)) },
+        text = {
+            Column {
+                if (riga.preventivo.stato != StatoPreventivo.ACCETTATO) {
+                    Text(
+                        stringResource(R.string.finanze_prev_accetta),
+                        color = Freela.tokens.success,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.fillMaxWidth().clickable { onAccetta() }.padding(vertical = 12.dp),
+                    )
+                }
+                Text(
+                    stringResource(R.string.finanze_prev_rifiuta),
+                    color = Freela.tokens.muted,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onRifiuta() }.padding(vertical = 12.dp),
+                )
+                Text(
+                    stringResource(R.string.finanze_azione_elimina),
+                    color = Freela.tokens.danger,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth().clickable { onElimina() }.padding(vertical = 12.dp),
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun MeseDialog(
+    selezionato: Int,
+    onDismiss: () -> Unit,
+    onPick: (Int) -> Unit,
+) {
+    val df = remember { SimpleDateFormat("MMMM yyyy", Locale.ITALIAN) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.finanze_annulla)) }
+        },
+        title = { Text(stringResource(R.string.finanze_mese_titolo)) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                (0 downTo -11).forEach { offset ->
+                    val cal = Calendar.getInstance().apply { add(Calendar.MONTH, offset) }
+                    val label = df.format(cal.time).replaceFirstChar { it.uppercase() }
+                    Text(
+                        label,
+                        color = if (offset == selezionato) Freela.tokens.accentBase else Freela.tokens.ink,
+                        fontWeight = if (offset == selezionato) FontWeight.SemiBold else FontWeight.Normal,
+                        modifier = Modifier.fillMaxWidth().clickable { onPick(offset) }.padding(vertical = 10.dp),
+                    )
+                }
+            }
+        },
+    )
 }
 
 @Composable
@@ -254,3 +549,8 @@ private fun Legend(color: Color, label: String, value: String) {
 }
 
 private fun formatMoney(v: Double): String = "€${String.format(Locale.ITALIAN, "%,.0f", v)}"
+
+private fun numeroSuggerito(numFatture: Int): String {
+    val anno = Calendar.getInstance().get(Calendar.YEAR)
+    return "$anno-${String.format(Locale.ITALIAN, "%03d", numFatture + 1)}"
+}
