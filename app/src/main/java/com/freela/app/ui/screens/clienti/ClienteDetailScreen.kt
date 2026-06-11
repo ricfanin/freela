@@ -28,7 +28,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.compose.material.icons.filled.Star
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -43,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
+import com.freela.app.domain.model.FasePipeline
 import com.freela.app.domain.model.TipoInterazione
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -81,6 +85,7 @@ import java.util.Locale
 fun ClienteDetailScreen(
     onBack: () -> Unit,
     onStartTimer: () -> Unit,
+    onNavigateToFinanze: () -> Unit = {},
     viewModel: ClienteDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -89,6 +94,8 @@ fun ClienteDetailScreen(
     val ctx = LocalContext.current
     val stageC = stageColor(cliente.faseCorrente)
     var showInterazioneDialog by remember { mutableStateOf(false) }
+    var showFaseDialog by remember { mutableStateOf(false) }
+    var preferito by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -133,8 +140,8 @@ fun ClienteDetailScreen(
             ) {
                 IconBtn(Icons.Outlined.ArrowBack, onClick = onBack)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    IconBtn(Icons.Outlined.StarBorder, onClick = { /* TODO preferito */ })
-                    IconBtn(Icons.Outlined.MoreHoriz, onClick = { /* TODO menu */ })
+                    IconBtn(if (preferito) Icons.Filled.Star else Icons.Outlined.StarBorder, onClick = { preferito = !preferito })
+                    IconBtn(Icons.Outlined.MoreHoriz, onClick = { showFaseDialog = true })
                 }
             }
 
@@ -168,14 +175,25 @@ fun ClienteDetailScreen(
             ) {
                 FreelaButton(
                     text = stringResource(R.string.cliente_action_chiama),
-                    onClick = { /* TODO ACTION_DIAL intent */ },
+                    onClick = {
+                        cliente.telefono?.let { tel ->
+                            runCatching { ctx.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$tel"))) }
+                        }
+                    },
                     variant = FreelaButtonVariant.Soft,
                     size = FreelaButtonSize.Small,
                     leading = { Icon(Icons.Outlined.Phone, contentDescription = null, modifier = Modifier.size(15.dp)) },
                 )
                 FreelaButton(
                     text = stringResource(R.string.cliente_action_scrivi),
-                    onClick = { /* TODO */ },
+                    onClick = {
+                        val uri = when {
+                            cliente.telefono != null -> Uri.parse("smsto:${cliente.telefono}")
+                            cliente.email != null -> Uri.parse("mailto:${cliente.email}")
+                            else -> null
+                        }
+                        uri?.let { runCatching { ctx.startActivity(Intent(Intent.ACTION_SENDTO, it)) } }
+                    },
                     variant = FreelaButtonVariant.Soft,
                     size = FreelaButtonSize.Small,
                     leading = { Icon(Icons.Outlined.ChatBubbleOutline, contentDescription = null, modifier = Modifier.size(15.dp)) },
@@ -194,7 +212,7 @@ fun ClienteDetailScreen(
                 SectionHead(
                     label = stringResource(R.string.cliente_section_fase),
                     actionText = stringResource(R.string.cliente_action_cambia),
-                    onActionClick = { /* TODO bottom sheet stage */ },
+                    onActionClick = { showFaseDialog = true },
                 )
                 FreelaCard(modifier = Modifier.fillMaxWidth(), padding = 14.dp) {
                     Row(
@@ -327,7 +345,7 @@ fun ClienteDetailScreen(
             // Finanze inline
             if (state.fatture.isNotEmpty()) {
                 Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 6.dp)) {
-                    SectionHead(label = stringResource(R.string.cliente_section_finanze), actionText = stringResource(R.string.cliente_action_tutte))
+                    SectionHead(label = stringResource(R.string.cliente_section_finanze), actionText = stringResource(R.string.cliente_action_tutte), onActionClick = onNavigateToFinanze)
                     FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
                         Column {
                             state.fatture.forEachIndexed { i, f ->
@@ -397,7 +415,46 @@ fun ClienteDetailScreen(
                 },
             )
         }
+        if (showFaseDialog) {
+            CambiaFaseDialog(
+                current = cliente.faseCorrente,
+                onDismiss = { showFaseDialog = false },
+                onPick = { fase ->
+                    viewModel.cambiaFase(fase)
+                    showFaseDialog = false
+                },
+            )
+        }
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CambiaFaseDialog(
+    current: FasePipeline,
+    onDismiss: () -> Unit,
+    onPick: (FasePipeline) -> Unit,
+) {
+    val ctx = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.interazione_annulla)) }
+        },
+        title = { Text(stringResource(R.string.cliente_action_cambia)) },
+        text = {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FasePipeline.ordered.forEach { fase ->
+                    FreelaChip(
+                        ctx.getString(fase.shortRes),
+                        tone = if (fase == current) ChipTone.Accent else ChipTone.Neutral,
+                        size = ChipSize.Small,
+                        modifier = Modifier.clickable { onPick(fase) },
+                    )
+                }
+            }
+        },
+    )
 }
 
 @OptIn(ExperimentalLayoutApi::class)

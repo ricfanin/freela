@@ -120,6 +120,7 @@ fun FreelaNavHost(
                 ClienteDetailScreen(
                     onBack = { navController.popBackStack() },
                     onStartTimer = { navController.navigate(Routes.TIMER) },
+                    onNavigateToFinanze = { navController.navigate(Routes.FINANZE) },
                 )
             }
             composable(Routes.TASK) { TaskScreen() }

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.data.location.LocationProvider
 import com.freela.app.domain.model.Cliente
+import com.freela.app.domain.model.FasePipeline
 import com.freela.app.domain.model.Fattura
 import com.freela.app.domain.model.Interazione
 import com.freela.app.domain.model.Task
@@ -36,7 +37,7 @@ data class ClienteDetailUiState(
 @HiltViewModel
 class ClienteDetailViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    clienteRepo: ClienteRepository,
+    private val clienteRepo: ClienteRepository,
     private val interazioneRepo: InterazioneRepository,
     private val locationProvider: LocationProvider,
     taskRepo: TaskRepository,
@@ -72,6 +73,12 @@ class ClienteDetailViewModel @Inject constructor(
      * Registra un'interazione (PRD FR-14). Se [conPosizione] è true (solo per MEETING, US-13/FR-15),
      * acquisisce posizione GPS e indirizzo via reverse geocoding. Il permesso va già concesso dalla UI.
      */
+    /** Cambia la fase pipeline del cliente (PRD FR-05). */
+    fun cambiaFase(fase: FasePipeline) {
+        if (clienteId == 0L) return
+        viewModelScope.launch { clienteRepo.cambiaFase(clienteId, fase) }
+    }
+
     fun aggiungiInterazione(
         tipo: TipoInterazione,
         descrizione: String?,
