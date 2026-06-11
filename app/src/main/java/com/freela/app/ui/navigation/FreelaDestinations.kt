@@ -16,6 +16,8 @@ object Routes {
     const val PROGETTI = "progetti"
     const val PROGETTO_DETAIL = "progetti/{clienteId}"
     fun progettoDetail(id: Long) = "progetti/$id"
+    const val NUOVO_CLIENTE = "nuovo_cliente"
+    const val NUOVO_PROGETTO = "nuovo_progetto"
     const val TIMER = "timer"
     const val FINANZE = "finanze"
     const val STORICO = "storico"

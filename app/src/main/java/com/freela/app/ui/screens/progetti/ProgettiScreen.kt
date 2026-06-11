@@ -44,6 +44,7 @@ import com.freela.app.ui.theme.Freela
 @Composable
 fun ProgettiScreen(
     onNavigateToProgetto: (Long) -> Unit,
+    onNuovoProgetto: () -> Unit = {},
     viewModel: ProgettiViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -57,7 +58,7 @@ fun ProgettiScreen(
             subtitle = stringResource(R.string.progetti_subtitle, state.aperti.size, state.completati.size),
             trailing = {
                 Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).background(tokens.accentBase),
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(tokens.accentBase).clickable { onNuovoProgetto() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Outlined.Add, contentDescription = stringResource(R.string.content_desc_add), tint = Color.White, modifier = Modifier.size(18.dp))

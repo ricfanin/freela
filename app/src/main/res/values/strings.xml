@@ -88,6 +88,25 @@
     <string name="progetto_tab_documenti">Documenti</string>
     <string name="progetto_no_task">Nessun task in questo progetto</string>
     <string name="progetto_no_documenti">Nessun documento allegato</string>
+    <!-- Nuovo cliente -->
+    <string name="nc_annulla">Annulla</string>
+    <string name="nc_subtitle">I dati restano solo sul tuo dispositivo.</string>
+    <string name="nc_nome_label">Nome cliente</string>
+    <string name="nc_nome_placeholder">Nome cliente</string>
+    <string name="nc_telefono_label">Numero di telefono</string>
+    <string name="nc_email_label">Email</string>
+    <string name="nc_email_placeholder">nome@dominio.it</string>
+    <string name="nc_salva">Salva cliente</string>
+    <!-- Nuovo progetto -->
+    <string name="np_annulla">Annulla</string>
+    <string name="np_eyebrow">Nuovo progetto</string>
+    <string name="np_nome_label">Nome progetto</string>
+    <string name="np_nome_placeholder">Nome del progetto</string>
+    <string name="np_deadline_label">Deadline (opzionale)</string>
+    <string name="np_task_label">Task del progetto</string>
+    <string name="np_aggiungi_task">Aggiungi task</string>
+    <string name="np_totale">Totale stimato</string>
+    <string name="np_crea">Crea progetto</string>
     <string name="nav_finanze">Finanze</string>
 
     <!-- Placeholder (build demo) -->

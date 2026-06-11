@@ -20,6 +20,8 @@ import com.freela.app.ui.components.FreelaTab
 import com.freela.app.ui.screens.boot.BootViewModel
 import com.freela.app.ui.screens.clienti.ClienteDetailScreen
 import com.freela.app.ui.screens.clienti.ClientiScreen
+import com.freela.app.ui.screens.clienti.NuovoClienteScreen
+import com.freela.app.ui.screens.progetti.NuovoProgettoScreen
 import com.freela.app.ui.screens.finanze.FinanzeScreen
 import com.freela.app.ui.screens.oggi.OggiScreen
 import com.freela.app.ui.screens.onboarding.OnboardingScreen
@@ -102,11 +104,13 @@ fun FreelaNavHost(
             composable(Routes.PIPELINE) {
                 PipelineScreen(
                     onNavigateToCliente = { id -> navController.navigate(Routes.clienteDetail(id)) },
+                    onNuovoCliente = { navController.navigate(Routes.NUOVO_CLIENTE) },
                 )
             }
             composable(Routes.CLIENTI) {
                 ClientiScreen(
                     onNavigateToCliente = { id -> navController.navigate(Routes.clienteDetail(id)) },
+                    onNuovoCliente = { navController.navigate(Routes.NUOVO_CLIENTE) },
                 )
             }
             composable(
@@ -122,6 +126,7 @@ fun FreelaNavHost(
             composable(Routes.PROGETTI) {
                 ProgettiScreen(
                     onNavigateToProgetto = { id -> navController.navigate(Routes.progettoDetail(id)) },
+                    onNuovoProgetto = { navController.navigate(Routes.NUOVO_PROGETTO) },
                 )
             }
             composable(
@@ -129,6 +134,12 @@ fun FreelaNavHost(
                 arguments = listOf(navArgument(Routes.ARG_CLIENTE_ID) { type = NavType.LongType }),
             ) {
                 ProgettoDetailScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.NUOVO_CLIENTE) {
+                NuovoClienteScreen(onBack = { navController.popBackStack() })
+            }
+            composable(Routes.NUOVO_PROGETTO) {
+                NuovoProgettoScreen(onBack = { navController.popBackStack() })
             }
             composable(Routes.TIMER) {
                 TimerScreen(onBack = { navController.popBackStack() })
