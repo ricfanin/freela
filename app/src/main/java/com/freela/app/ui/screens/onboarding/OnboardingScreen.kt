@@ -230,7 +230,7 @@ fun OnboardingScreen(
             )
 
             when (step) {
-                0 -> SecondaryAction(text = stringResource(R.string.onboarding_cta_login)) { }
+                0 -> SecondaryAction(text = stringResource(R.string.onboarding_cta_login)) { viewModel.completaOnboarding(onStart) }
                 2 -> SecondaryAction(text = stringResource(R.string.onboarding_notifiche_not_now)) { step++ }
             }
         }

@@ -23,6 +23,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,6 +52,14 @@ fun ProgettiScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
+    var filtro by remember { mutableIntStateOf(0) }
+
+    val apertiFiltrati = when (filtro) {
+        1 -> state.aperti.filter { it.stato == StatoProgetto.IN_CORSO }
+        2 -> state.aperti.filter { it.stato == StatoProgetto.DA_INIZIARE }
+        else -> state.aperti
+    }
+    val mostraCompletati = filtro == 0
 
     Column(
         modifier = Modifier.fillMaxSize().background(tokens.bg),
@@ -70,10 +81,19 @@ fun ProgettiScreen(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 22.dp, vertical = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FreelaChip(stringResource(R.string.progetti_filter_tutti), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.progetti_filter_in_corso), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.progetti_filter_da_iniziare), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.progetti_filter_in_scadenza), tone = ChipTone.Neutral)
+            listOf(
+                R.string.progetti_filter_tutti,
+                R.string.progetti_filter_in_corso,
+                R.string.progetti_filter_da_iniziare,
+                R.string.progetti_filter_in_scadenza,
+            ).forEachIndexed { i, res ->
+                FreelaChip(
+                    stringResource(res),
+                    tone = if (filtro == i) ChipTone.Accent else ChipTone.Neutral,
+                    dot = filtro == i,
+                    modifier = Modifier.clickable { filtro = i },
+                )
+            }
         }
 
         LazyColumn(
@@ -81,13 +101,13 @@ fun ProgettiScreen(
             contentPadding = PaddingValues(horizontal = 22.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            if (state.aperti.isNotEmpty()) {
+            if (apertiFiltrati.isNotEmpty()) {
                 item {
-                    SectionHead(label = stringResource(R.string.progetti_section_aperti), count = state.aperti.size)
+                    SectionHead(label = stringResource(R.string.progetti_section_aperti), count = apertiFiltrati.size)
                 }
-                items(state.aperti.size) { i -> ProgettoCard(state.aperti[i], onClick = { onNavigateToProgetto(state.aperti[i].clienteId) }) }
+                items(apertiFiltrati.size) { i -> ProgettoCard(apertiFiltrati[i], onClick = { onNavigateToProgetto(apertiFiltrati[i].clienteId) }) }
             }
-            if (state.completati.isNotEmpty()) {
+            if (mostraCompletati && state.completati.isNotEmpty()) {
                 item {
                     Spacer(Modifier.height(8.dp))
                     SectionHead(label = stringResource(R.string.progetti_section_completati), count = state.completati.size)

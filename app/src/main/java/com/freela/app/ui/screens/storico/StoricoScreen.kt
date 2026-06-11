@@ -26,6 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +58,12 @@ fun StoricoScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
     val maxOre = state.distribuzione.maxOfOrNull { it.ore } ?: 1f
+    var periodo by remember { mutableIntStateOf(1) }
+    val periodoLabel = when (periodo) {
+        0 -> stringResource(R.string.storico_subtitle_settimana)
+        2 -> stringResource(R.string.storico_subtitle_anno)
+        else -> stringResource(R.string.storico_subtitle_mese)
+    }
 
     Column(
         modifier = Modifier
@@ -65,7 +74,7 @@ fun StoricoScreen(
     ) {
         ScreenHeader(
             title = stringResource(R.string.storico_title),
-            subtitle = "Ultimo mese",
+            subtitle = periodoLabel,
             leading = {
                 Box(
                     modifier = Modifier.size(36.dp).clip(CircleShape)
@@ -88,9 +97,18 @@ fun StoricoScreen(
         )
 
         Row(modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FreelaChip(stringResource(R.string.storico_toggle_settimana), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.storico_toggle_mese), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.storico_toggle_anno), tone = ChipTone.Neutral)
+            listOf(
+                R.string.storico_toggle_settimana,
+                R.string.storico_toggle_mese,
+                R.string.storico_toggle_anno,
+            ).forEachIndexed { i, res ->
+                FreelaChip(
+                    stringResource(res),
+                    tone = if (periodo == i) ChipTone.Accent else ChipTone.Neutral,
+                    dot = periodo == i,
+                    modifier = Modifier.clickable { periodo = i },
+                )
+            }
         }
 
         Row(

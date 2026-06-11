@@ -28,6 +28,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +57,7 @@ fun TaskScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
+    var filtro by remember { mutableIntStateOf(0) }
 
     Column(
         modifier = Modifier
@@ -82,14 +86,23 @@ fun TaskScreen(
                 .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            FreelaChip(stringResource(R.string.task_filter_all), tone = ChipTone.Accent, dot = true)
-            FreelaChip(stringResource(R.string.task_filter_urgenti), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.task_filter_suggeriti), tone = ChipTone.Neutral)
-            FreelaChip(stringResource(R.string.task_filter_senza_cliente), tone = ChipTone.Neutral)
+            listOf(
+                R.string.task_filter_all,
+                R.string.task_filter_urgenti,
+                R.string.task_filter_suggeriti,
+                R.string.task_filter_senza_cliente,
+            ).forEachIndexed { i, res ->
+                FreelaChip(
+                    stringResource(res),
+                    tone = if (filtro == i) ChipTone.Accent else ChipTone.Neutral,
+                    dot = filtro == i,
+                    modifier = Modifier.clickable { filtro = i },
+                )
+            }
         }
 
         TaskGruppo.entries.forEach { gruppo ->
-            val righe = state.righe.filter { it.gruppo == gruppo }
+            val righe = state.righe.filter { it.gruppo == gruppo && passaFiltro(it, filtro) }
             if (righe.isEmpty()) return@forEach
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp)) {
                 SectionHead(
@@ -173,4 +186,11 @@ private fun TaskRow(r: TaskRiga, onCheck: () -> Unit) {
             modifier = Modifier.size(14.dp).align(Alignment.CenterVertically),
         )
     }
+}
+
+private fun passaFiltro(r: TaskRiga, filtro: Int): Boolean = when (filtro) {
+    1 -> r.task.priorita == com.freela.app.domain.model.Priorita.ALTA
+    2 -> r.gruppo == TaskGruppo.SUGGERITI
+    3 -> r.cliente == null
+    else -> true
 }

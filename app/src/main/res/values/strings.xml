@@ -229,6 +229,9 @@
     <string name="storico_section_top">Top clienti del mese</string>
     <string name="storico_label_ore_per_cliente">Ore tracciate per cliente</string>
     <string name="storico_label_pattern">Pattern del mese</string>
+    <string name="storico_subtitle_settimana">Ultima settimana</string>
+    <string name="storico_subtitle_mese">Ultimo mese</string>
+    <string name="storico_subtitle_anno">Ultimo anno</string>
 
     <!-- Settings -->
     <string name="settings_title">Impostazioni</string>
