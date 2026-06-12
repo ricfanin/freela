@@ -66,10 +66,10 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
 
-    // Preferenze notifiche: UI-only (non ancora persistite, PRD §11.4).
-    var notifScadenze by rememberSaveable { mutableStateOf(true) }
-    var notifPromemoria by rememberSaveable { mutableStateOf(true) }
-    var notifRiepilogo by rememberSaveable { mutableStateOf(false) }
+    // Preferenze notifiche, persistite via DataStore.
+    val notifScadenze by viewModel.notifScadenze.collectAsStateWithLifecycle()
+    val notifPromemoria by viewModel.notifPromemoria.collectAsStateWithLifecycle()
+    val notifRiepilogo by viewModel.notifRiepilogo.collectAsStateWithLifecycle()
 
     Column(
         modifier = Modifier
@@ -127,21 +127,21 @@ fun SettingsScreen(
                         icon = Icons.Outlined.Notifications,
                         title = stringResource(R.string.settings_notif_scadenze),
                         subtitle = stringResource(R.string.settings_notif_scadenze_sub),
-                        trailing = { FreelaSwitch(notifScadenze) { notifScadenze = it } },
+                        trailing = { FreelaSwitch(notifScadenze) { viewModel.setNotifScadenze(it) } },
                     )
                     Divider()
                     SettingRow(
                         icon = Icons.Outlined.Person,
                         title = stringResource(R.string.settings_notif_promemoria),
                         subtitle = stringResource(R.string.settings_notif_promemoria_sub),
-                        trailing = { FreelaSwitch(notifPromemoria) { notifPromemoria = it } },
+                        trailing = { FreelaSwitch(notifPromemoria) { viewModel.setNotifPromemoria(it) } },
                     )
                     Divider()
                     SettingRow(
                         icon = Icons.Outlined.Schedule,
                         title = stringResource(R.string.settings_notif_riepilogo),
                         subtitle = stringResource(R.string.settings_notif_riepilogo_sub),
-                        trailing = { FreelaSwitch(notifRiepilogo) { notifRiepilogo = it } },
+                        trailing = { FreelaSwitch(notifRiepilogo) { viewModel.setNotifRiepilogo(it) } },
                     )
                 }
             }

@@ -107,6 +107,9 @@
     <string name="np_aggiungi_task">Aggiungi task</string>
     <string name="np_totale">Totale stimato</string>
     <string name="np_crea">Crea progetto</string>
+    <string name="np_cliente_label">Cliente</string>
+    <string name="np_cliente_placeholder">Seleziona cliente</string>
+    <string name="np_cliente_cambia">Cambia</string>
     <string name="nav_finanze">Finanze</string>
 
     <!-- Placeholder (build demo) -->

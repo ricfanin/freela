@@ -22,9 +22,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.Business
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -41,7 +44,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
+import com.freela.app.domain.model.Cliente
 import com.freela.app.ui.components.FreelaButton
 import com.freela.app.ui.components.FreelaButtonSize
 import com.freela.app.ui.theme.Freela
@@ -52,12 +58,19 @@ private class TaskBozza(nome: String, ore: String) {
 }
 
 @Composable
-fun NuovoProgettoScreen(onBack: () -> Unit) {
+fun NuovoProgettoScreen(
+    onBack: () -> Unit,
+    viewModel: NuovoProgettoViewModel = hiltViewModel(),
+) {
     val tokens = Freela.tokens
+    val clienti by viewModel.clienti.collectAsStateWithLifecycle()
     var nome by remember { mutableStateOf("") }
     var deadline by remember { mutableStateOf("") }
+    var selectedCliente by remember { mutableStateOf<Cliente?>(null) }
+    var showClienteDialog by remember { mutableStateOf(false) }
     val tasks = remember { mutableStateListOf(TaskBozza("Wireframe e UX", "12"), TaskBozza("Design UI", "20")) }
     val totale = tasks.sumOf { it.ore.toIntOrNull() ?: 0 }
+    val clienteSel = selectedCliente ?: clienti.firstOrNull()
 
     Column(
         modifier = Modifier.fillMaxSize().background(tokens.bg).verticalScroll(rememberScrollState()),
@@ -84,6 +97,32 @@ fun NuovoProgettoScreen(onBack: () -> Unit) {
                 fontSize = 26.sp,
                 fontWeight = FontWeight.SemiBold,
             )
+
+            // Selettore cliente
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(stringResource(R.string.np_cliente_label).uppercase(), color = tokens.muted, style = tokens.typeExtras.monoCap)
+                Row(
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(tokens.surface)
+                        .border(1.dp, tokens.line, RoundedCornerShape(14.dp)).padding(horizontal = 14.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Icon(Icons.Outlined.Business, contentDescription = null, tint = tokens.muted, modifier = Modifier.size(18.dp))
+                    Text(
+                        clienteSel?.nome ?: stringResource(R.string.np_cliente_placeholder),
+                        color = if (clienteSel != null) tokens.ink else tokens.faint,
+                        fontSize = 15.sp,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        stringResource(R.string.np_cliente_cambia),
+                        color = tokens.accentBase,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        modifier = Modifier.clickable { showClienteDialog = true },
+                    )
+                }
+            }
 
             Field(stringResource(R.string.np_nome_label), nome, { nome = it }, stringResource(R.string.np_nome_placeholder))
             Field(stringResource(R.string.np_deadline_label), deadline, { deadline = it }, "gg/mm/aaaa")
@@ -142,13 +181,35 @@ fun NuovoProgettoScreen(onBack: () -> Unit) {
 
             FreelaButton(
                 text = stringResource(R.string.np_crea),
-                onClick = onBack,
+                onClick = { viewModel.salva(clienteSel?.id ?: 0L, nome, totale, onBack) },
                 size = FreelaButtonSize.Large,
                 fillMaxWidth = true,
-                enabled = nome.isNotBlank(),
+                enabled = nome.isNotBlank() && clienteSel != null,
             )
             Spacer(Modifier.height(24.dp))
         }
+    }
+
+    if (showClienteDialog) {
+        AlertDialog(
+            onDismissRequest = { showClienteDialog = false },
+            confirmButton = {
+                TextButton(onClick = { showClienteDialog = false }) { Text(stringResource(R.string.np_annulla)) }
+            },
+            title = { Text(stringResource(R.string.np_cliente_label)) },
+            text = {
+                Column {
+                    clienti.forEach { c ->
+                        Text(
+                            c.nome,
+                            color = tokens.ink,
+                            fontSize = 15.sp,
+                            modifier = Modifier.fillMaxWidth().clickable { selectedCliente = c; showClienteDialog = false }.padding(vertical = 12.dp),
+                        )
+                    }
+                }
+            },
+        )
     }
 }
 

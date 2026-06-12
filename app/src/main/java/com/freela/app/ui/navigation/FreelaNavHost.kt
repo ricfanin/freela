@@ -132,7 +132,7 @@ fun FreelaNavHost(
             }
             composable(
                 route = Routes.PROGETTO_DETAIL,
-                arguments = listOf(navArgument(Routes.ARG_CLIENTE_ID) { type = NavType.LongType }),
+                arguments = listOf(navArgument(Routes.ARG_PROGETTO_ID) { type = NavType.LongType }),
             ) {
                 ProgettoDetailScreen(onBack = { navController.popBackStack() })
             }

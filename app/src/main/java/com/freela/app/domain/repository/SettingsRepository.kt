@@ -11,10 +11,16 @@ interface SettingsRepository {
     val temaPreferito: Flow<TemaPreferito>
     val giorniSenzaContatto: Flow<Int>
     val giorniFollowUpPreventivo: Flow<Int>
+    val notifScadenzeFatture: Flow<Boolean>
+    val notifPromemoriaClienti: Flow<Boolean>
+    val notifRiepilogoGiornaliero: Flow<Boolean>
 
     suspend fun completaOnboarding()
     suspend fun impostaPersona(persona: PersonaDemo)
     suspend fun impostaTema(tema: TemaPreferito)
     suspend fun impostaSogliaSenzaContatto(giorni: Int)
     suspend fun impostaSogliaFollowUp(giorni: Int)
+    suspend fun impostaNotifScadenzeFatture(attiva: Boolean)
+    suspend fun impostaNotifPromemoriaClienti(attiva: Boolean)
+    suspend fun impostaNotifRiepilogoGiornaliero(attiva: Boolean)
 }

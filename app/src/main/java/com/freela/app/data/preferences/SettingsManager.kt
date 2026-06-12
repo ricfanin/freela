@@ -29,6 +29,9 @@ class SettingsManager @Inject constructor(
         val TEMA = stringPreferencesKey("tema_preferito")
         val SOGLIA_SENZA_CONTATTO = intPreferencesKey("soglia_senza_contatto_giorni")
         val SOGLIA_FOLLOW_UP = intPreferencesKey("soglia_follow_up_preventivo_giorni")
+        val NOTIF_SCADENZE = booleanPreferencesKey("notif_scadenze_fatture")
+        val NOTIF_PROMEMORIA = booleanPreferencesKey("notif_promemoria_clienti")
+        val NOTIF_RIEPILOGO = booleanPreferencesKey("notif_riepilogo_giornaliero")
     }
 
     override val onboardingCompleted: Flow<Boolean> =
@@ -49,6 +52,15 @@ class SettingsManager @Inject constructor(
     override val giorniFollowUpPreventivo: Flow<Int> =
         context.dataStore.data.map { it[Keys.SOGLIA_FOLLOW_UP] ?: 5 }
 
+    override val notifScadenzeFatture: Flow<Boolean> =
+        context.dataStore.data.map { it[Keys.NOTIF_SCADENZE] ?: true }
+
+    override val notifPromemoriaClienti: Flow<Boolean> =
+        context.dataStore.data.map { it[Keys.NOTIF_PROMEMORIA] ?: true }
+
+    override val notifRiepilogoGiornaliero: Flow<Boolean> =
+        context.dataStore.data.map { it[Keys.NOTIF_RIEPILOGO] ?: false }
+
     override suspend fun completaOnboarding() {
         context.dataStore.edit { it[Keys.ONBOARDING_COMPLETED] = true }
     }
@@ -67,5 +79,17 @@ class SettingsManager @Inject constructor(
 
     override suspend fun impostaSogliaFollowUp(giorni: Int) {
         context.dataStore.edit { it[Keys.SOGLIA_FOLLOW_UP] = giorni }
+    }
+
+    override suspend fun impostaNotifScadenzeFatture(attiva: Boolean) {
+        context.dataStore.edit { it[Keys.NOTIF_SCADENZE] = attiva }
+    }
+
+    override suspend fun impostaNotifPromemoriaClienti(attiva: Boolean) {
+        context.dataStore.edit { it[Keys.NOTIF_PROMEMORIA] = attiva }
+    }
+
+    override suspend fun impostaNotifRiepilogoGiornaliero(attiva: Boolean) {
+        context.dataStore.edit { it[Keys.NOTIF_RIEPILOGO] = attiva }
     }
 }

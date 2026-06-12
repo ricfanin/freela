@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
+import com.freela.app.domain.model.StatoProgetto
 import com.freela.app.ui.components.ChipSize
 import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.FreelaCard
@@ -60,7 +61,7 @@ fun ProgettoDetailScreen(
     val c = state.cliente
     var tab by remember { mutableIntStateOf(0) }
 
-    val orePrev = c?.orePreventivate ?: 0f
+    val orePrev = (state.progetto?.oreStimate ?: 0).toFloat()
     val oreReali = state.oreRealiMillis / 3_600_000f
     val taskTot = state.tasks.size
     val taskFatti = state.tasks.count { it.completato }
@@ -70,7 +71,7 @@ fun ProgettoDetailScreen(
         modifier = Modifier.fillMaxSize().background(tokens.bg).verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
     ) {
         ScreenHeader(
-            title = state.nomeProgetto,
+            title = state.progetto?.nome ?: "",
             subtitle = c?.nome ?: "—",
             large = false,
             leading = {
@@ -83,7 +84,12 @@ fun ProgettoDetailScreen(
         )
 
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp)) {
-            FreelaChip(stringResource(R.string.progetto_stato_in_corso), tone = ChipTone.Accent, dot = true, size = ChipSize.Small)
+            val (statoLabel, statoTone) = when (state.progetto?.stato) {
+                StatoProgetto.COMPLETATO -> stringResource(R.string.progetto_stato_completato) to ChipTone.Success
+                StatoProgetto.DA_INIZIARE -> stringResource(R.string.progetto_stato_da_iniziare) to ChipTone.Neutral
+                else -> stringResource(R.string.progetto_stato_in_corso) to ChipTone.Accent
+            }
+            FreelaChip(statoLabel, tone = statoTone, dot = true, size = ChipSize.Small)
         }
 
         // Stat row

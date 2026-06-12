@@ -50,4 +50,15 @@ class SettingsViewModel @Inject constructor(
     fun cambiaTema(tema: TemaPreferito) {
         viewModelScope.launch { settings.impostaTema(tema) }
     }
+
+    val notifScadenze: StateFlow<Boolean> =
+        settings.notifScadenzeFatture.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val notifPromemoria: StateFlow<Boolean> =
+        settings.notifPromemoriaClienti.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+    val notifRiepilogo: StateFlow<Boolean> =
+        settings.notifRiepilogoGiornaliero.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    fun setNotifScadenze(v: Boolean) = viewModelScope.launch { settings.impostaNotifScadenzeFatture(v) }
+    fun setNotifPromemoria(v: Boolean) = viewModelScope.launch { settings.impostaNotifPromemoriaClienti(v) }
+    fun setNotifRiepilogo(v: Boolean) = viewModelScope.launch { settings.impostaNotifRiepilogoGiornaliero(v) }
 }

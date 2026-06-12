@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
+import com.freela.app.domain.model.StatoProgetto
 import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.FreelaChip
 import com.freela.app.ui.components.FreelaProgressBar
@@ -105,14 +106,14 @@ fun ProgettiScreen(
                 item {
                     SectionHead(label = stringResource(R.string.progetti_section_aperti), count = apertiFiltrati.size)
                 }
-                items(apertiFiltrati.size) { i -> ProgettoCard(apertiFiltrati[i], onClick = { onNavigateToProgetto(apertiFiltrati[i].clienteId) }) }
+                items(apertiFiltrati.size) { i -> ProgettoCard(apertiFiltrati[i], onClick = { onNavigateToProgetto(apertiFiltrati[i].id) }) }
             }
             if (mostraCompletati && state.completati.isNotEmpty()) {
                 item {
                     Spacer(Modifier.height(8.dp))
                     SectionHead(label = stringResource(R.string.progetti_section_completati), count = state.completati.size)
                 }
-                items(state.completati.size) { i -> ProgettoCard(state.completati[i], onClick = { onNavigateToProgetto(state.completati[i].clienteId) }) }
+                items(state.completati.size) { i -> ProgettoCard(state.completati[i], onClick = { onNavigateToProgetto(state.completati[i].id) }) }
             }
         }
     }
