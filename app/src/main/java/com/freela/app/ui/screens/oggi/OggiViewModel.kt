@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.Fattura
 import com.freela.app.domain.model.OrigineTask
-import com.freela.app.domain.model.PersonaDemo
 import com.freela.app.domain.model.SessioneLavoro
 import com.freela.app.domain.model.Task
 import com.freela.app.domain.repository.ClienteRepository
@@ -39,7 +38,7 @@ data class OggiVoce(
  * e le tre sezioni operative del PRD FR-16 (da contattare, da consegnare, pagamenti).
  */
 data class OggiUiState(
-    val persona: PersonaDemo? = null,
+    val nomeUtente: String? = null,
     val sessione: SessioneLavoro? = null,
     val clienteAttivo: Cliente? = null,
     val periodo: PeriodoOggi = PeriodoOggi.MESE,
@@ -70,7 +69,7 @@ class OggiViewModel @Inject constructor(
     private val periodoSel = MutableStateFlow(PeriodoOggi.MESE)
 
     private data class Acc(
-        val persona: PersonaDemo?,
+        val nomeUtente: String?,
         val sessione: SessioneLavoro?,
         val clienti: List<Cliente>,
         val incassato: Double,
@@ -84,13 +83,13 @@ class OggiViewModel @Inject constructor(
     val state: StateFlow<OggiUiState> = periodoSel.flatMapLatest { per ->
         val (start, end) = rangePeriodo(per)
         combine(
-            settings.personaCorrente,
+            settings.nomeUtente,
             timeRepo.osservaInCorso(),
             clienteRepo.osservaTutti(),
             finanzeRepo.osservaIncassatoPeriodo(start, end),
             finanzeRepo.osservaTotaleAttesi(now),
-        ) { persona, sessione, clienti, incassato, attesi ->
-            Acc(persona, sessione, clienti, incassato, attesi)
+        ) { nomeUtente, sessione, clienti, incassato, attesi ->
+            Acc(nomeUtente, sessione, clienti, incassato, attesi)
         }
             .combine(finanzeRepo.osservaTotaleRitardo(now)) { acc, ritardo -> acc.copy(ritardo = ritardo) }
             .combine(timeRepo.osservaOreTotaliPeriodoMillis(start, end, now)) { acc, ore -> acc.copy(oreMillis = ore) }
@@ -121,7 +120,7 @@ class OggiViewModel @Inject constructor(
         }
 
         return OggiUiState(
-            persona = acc.persona,
+            nomeUtente = acc.nomeUtente,
             sessione = acc.sessione,
             clienteAttivo = acc.sessione?.let { s -> acc.clienti.firstOrNull { it.id == s.clienteId } },
             periodo = per,

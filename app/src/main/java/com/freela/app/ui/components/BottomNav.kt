@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -56,6 +57,10 @@ fun FreelaBottomNav(
 ) {
     val tokens = Freela.tokens
     val ctx = LocalContext.current
+    // In tema scuro `muted` (oklch 70%) ha la stessa luminosità di `accentBase` (icona attiva),
+    // rendendo le tab indistinguibili: per le inattive usiamo `faint` (più scuro) così l'attiva stacca.
+    val isDark = tokens.bg.luminance() < 0.5f
+    val inactiveTint = if (isDark) tokens.faint else tokens.muted
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -86,13 +91,13 @@ fun FreelaBottomNav(
                     Icon(
                         imageVector = tab.icon,
                         contentDescription = ctx.getString(tab.labelRes),
-                        tint = if (isActive) tokens.accentBase else tokens.muted,
+                        tint = if (isActive) tokens.accentBase else inactiveTint,
                         modifier = Modifier.size(20.dp),
                     )
                 }
                 Text(
                     text = ctx.getString(tab.labelRes),
-                    color = if (isActive) tokens.ink else tokens.muted,
+                    color = if (isActive) tokens.ink else inactiveTint,
                     fontSize = 10.5f.sp,
                     fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Medium,
                     style = MaterialTheme.typography.labelMedium,

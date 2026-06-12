@@ -24,10 +24,10 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
-import com.freela.app.domain.model.PersonaDemo
 import com.freela.app.domain.repository.TemaPreferito
 import com.freela.app.ui.components.FreelaCard
 import com.freela.app.ui.components.ScreenHeader
@@ -61,6 +60,7 @@ import com.freela.app.ui.theme.Freela
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
+    onLogout: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -162,32 +162,27 @@ fun SettingsScreen(
             }
         }
 
-        // PERSONA DEMO (strumento demo, fuori dal mockup)
+        // ACCOUNT
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp)) {
-            SectionHead(label = stringResource(R.string.settings_section_persona))
+            SectionHead(label = stringResource(R.string.settings_section_account))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
-                Column {
-                    PersonaDemo.entries.forEachIndexed { i, persona ->
-                        val isSelected = state.personaCorrente == persona
-                        val isReseeding = state.reseedingPersona == persona
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable(enabled = state.reseedingPersona == null) { viewModel.cambiaPersona(persona) }
-                                .padding(horizontal = 16.dp, vertical = 14.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(persona.displayName, color = tokens.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                                Text(persona.ruolo, color = tokens.muted, fontSize = 12.sp, style = MaterialTheme.typography.bodySmall)
-                            }
-                            when {
-                                isReseeding -> CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp, color = tokens.accentBase)
-                                isSelected -> Icon(Icons.Outlined.Check, contentDescription = null, tint = tokens.accentBase, modifier = Modifier.size(20.dp))
-                            }
-                        }
-                        if (i < PersonaDemo.entries.size - 1) Divider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { viewModel.logout(onDone = onLogout) }
+                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(tokens.danger.copy(alpha = 0.12f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Outlined.Logout, contentDescription = null, tint = tokens.danger, modifier = Modifier.size(17.dp))
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(stringResource(R.string.settings_logout), color = tokens.danger, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.settings_logout_sub), color = tokens.muted, fontSize = 12.sp, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }

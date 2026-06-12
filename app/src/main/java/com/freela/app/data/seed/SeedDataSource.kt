@@ -12,39 +12,34 @@ import com.freela.app.data.local.entity.TagEntity
 import com.freela.app.data.local.entity.TaskEntity
 import com.freela.app.domain.model.FasePipeline
 import com.freela.app.domain.model.OrigineTask
-import com.freela.app.domain.model.PersonaDemo
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.StatoFattura
 import com.freela.app.domain.model.StatoProgetto
+import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Carica nel database il dataset demo della persona scelta.
+ * Carica nel database il dataset demo unico dell'app ([DemoSeed]).
  * Wipe completo + insert atomico in transazione.
- *
- * Fonte dati: design_handoff_freela/data.jsx (Giulia, Luca, Sara).
  */
 @Singleton
 class SeedDataSource @Inject constructor(
     private val db: FreelaDatabase,
 ) {
 
-    suspend fun seed(persona: PersonaDemo) = withContext(Dispatchers.IO) {
-        val payload = PersonaSeed.of(persona)
+    /** Svuota tutte le tabelle. Usato dal seed e dal logout (reset completo). */
+    suspend fun clear() = withContext(Dispatchers.IO) {
+        db.withTransaction { wipe() }
+    }
+
+    suspend fun seed() = withContext(Dispatchers.IO) {
+        val payload = DemoSeed.payload
 
         db.withTransaction {
-            // Wipe (CASCADE elimina interazioni/task/sessioni/fatture/preventivi/allegati/progetti legati ai clienti)
-            db.progettoDao().cancellaTutti()
-            db.fatturaDao().cancellaTutte()
-            db.preventivoDao().cancellaTutti()
-            db.sessioneLavoroDao().cancellaTutte()
-            db.taskDao().cancellaTutti()
-            db.interazioneDao().cancellaTutte()
-            db.clienteDao().cancellaTutti()
-            db.tagDao().cancellaTutti()
+            wipe()
 
             // Tag unici
             val tagNomi = payload.clienti.map { it.tag }.toSet()
@@ -128,7 +123,8 @@ class SeedDataSource @Inject constructor(
                 )
             }
 
-            // Fatture
+            // Fatture (numero generato sull'anno corrente, es. "2026-024")
+            val anno = currentYear()
             payload.fatture.forEach { f ->
                 val cid = clientiIds[f.clienteLocalId] ?: return@forEach
                 val scadenza = if (f.giorniDallaScadenza >= 0) {
@@ -138,7 +134,7 @@ class SeedDataSource @Inject constructor(
                 }
                 db.fatturaDao().insert(
                     FatturaEntity(
-                        numero = f.numero,
+                        numero = "%d-%03d".format(anno, f.progressivo),
                         clienteId = cid,
                         importo = f.importo,
                         dataEmissione = scadenza - daysToMillis(30),
@@ -150,12 +146,8 @@ class SeedDataSource @Inject constructor(
             }
 
             // Progetti (uno per cliente con budget preventivato)
-            val nomiProgetto = listOf(
-                "Sito e-commerce", "Brand identity", "App mobile", "Sito vetrina",
-                "Campagna social", "Restyling logo", "Landing page", "Identità visiva",
-            )
-            payload.clienti.filter { it.budget != null }.forEachIndexed { idx, c ->
-                val cid = clientiIds[c.localId] ?: return@forEachIndexed
+            payload.clienti.filter { it.budget != null }.forEach { c ->
+                val cid = clientiIds[c.localId] ?: return@forEach
                 val stato = when (c.stage) {
                     FasePipeline.CONSEGNATO, FasePipeline.IN_ATTESA_PAGAMENTO,
                     FasePipeline.CHIUSO, FasePipeline.CLIENTE_RICORRENTE -> StatoProgetto.COMPLETATO
@@ -165,7 +157,7 @@ class SeedDataSource @Inject constructor(
                 db.progettoDao().insert(
                     ProgettoEntity(
                         clienteId = cid,
-                        nome = nomiProgetto[idx % nomiProgetto.size],
+                        nome = c.progettoNome ?: "Progetto ${c.nome}",
                         deadline = now() + daysToMillis(15),
                         oreStimate = (c.orePreventivate ?: 0f).toInt(),
                         stato = stato,
@@ -191,15 +183,31 @@ class SeedDataSource @Inject constructor(
         }
     }
 
+    /**
+     * Svuota tutte le tabelle. CASCADE elimina interazioni/task/sessioni/fatture/preventivi/allegati/progetti
+     * legati ai clienti. Da invocare dentro una transazione.
+     */
+    private suspend fun wipe() {
+        db.progettoDao().cancellaTutti()
+        db.fatturaDao().cancellaTutte()
+        db.preventivoDao().cancellaTutti()
+        db.sessioneLavoroDao().cancellaTutte()
+        db.taskDao().cancellaTutti()
+        db.interazioneDao().cancellaTutte()
+        db.clienteDao().cancellaTutti()
+        db.tagDao().cancellaTutti()
+    }
+
     private fun now() = System.currentTimeMillis()
     private fun daysToMillis(d: Int): Long = d.toLong() * 24L * 60L * 60L * 1000L
+    private fun currentYear(): Int = Calendar.getInstance().get(Calendar.YEAR)
 
     private fun startOfTodayPlusHours(hours: Int): Long {
-        val cal = java.util.Calendar.getInstance().apply {
-            set(java.util.Calendar.HOUR_OF_DAY, hours)
-            set(java.util.Calendar.MINUTE, 0)
-            set(java.util.Calendar.SECOND, 0)
-            set(java.util.Calendar.MILLISECOND, 0)
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hours)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
         }
         return cal.timeInMillis
     }

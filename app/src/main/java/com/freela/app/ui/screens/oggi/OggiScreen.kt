@@ -86,7 +86,7 @@ fun OggiScreen(
             else -> "fine mese"
         }
     }
-    val nome = state.persona?.displayName ?: "—"
+    val nome = state.nomeUtente?.takeIf { it.isNotBlank() } ?: stringResource(R.string.app_name)
 
     Column(
         modifier = Modifier

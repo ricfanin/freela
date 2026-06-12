@@ -5,7 +5,6 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.freela.app.data.local.FreelaDatabase
-import com.freela.app.domain.model.PersonaDemo
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -19,7 +18,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 /**
- * Verifica che il seed di Giulia popoli il DB con 8 clienti + task suggeriti + fatture attese.
+ * Verifica che il seed demo popoli il DB con 8 clienti + task suggeriti + fatture attese.
  *
  * Lanciabile con `./gradlew :app:testDebugUnitTest`.
  *
@@ -56,24 +55,25 @@ class SeedDataSourceTest {
     fun teardown() { db.close() }
 
     @Test
-    fun `seed Giulia produce 8 clienti`() = runTest {
-        seed.seed(PersonaDemo.GIULIA)
+    fun `seed demo produce 8 clienti`() = runTest {
+        seed.seed()
         val clienti = db.clienteDao().osservaTutti().first()
         assertEquals(8, clienti.size)
     }
 
     @Test
-    fun `seed Giulia produce task con almeno 2 suggeriti`() = runTest {
-        seed.seed(PersonaDemo.GIULIA)
+    fun `seed demo produce task con almeno 2 suggeriti`() = runTest {
+        seed.seed()
         val tasks = db.taskDao().osservaTutti().first()
         val suggeriti = tasks.count { it.origine == com.freela.app.domain.model.OrigineTask.SUGGERITO }
         assertTrue("expected >= 2 suggeriti, got $suggeriti", suggeriti >= 2)
     }
 
     @Test
-    fun `seed Luca produce 5 clienti`() = runTest {
-        seed.seed(PersonaDemo.LUCA)
+    fun `clear svuota i clienti dopo il seed`() = runTest {
+        seed.seed()
+        seed.clear()
         val clienti = db.clienteDao().osservaTutti().first()
-        assertEquals(5, clienti.size)
+        assertTrue("expected DB vuoto dopo clear", clienti.isEmpty())
     }
 }
