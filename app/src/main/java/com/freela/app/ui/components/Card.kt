@@ -2,7 +2,7 @@ package com.freela.app.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,7 +51,9 @@ fun FreelaCard(
     content: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
-    Box(
+    // Column (non Box) così i figli del contenuto vengono impilati in verticale.
+    // Con un Box i contenuti multipli (label, barre, righe) si sovrappongono.
+    Column(
         modifier = modifier
             .then(if (elevated) Modifier.shadow(elevation = 4.dp, shape = shape, clip = false) else Modifier)
             .clip(shape)

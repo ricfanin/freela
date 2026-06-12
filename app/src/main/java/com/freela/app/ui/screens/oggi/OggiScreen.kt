@@ -22,7 +22,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
-import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Stop
@@ -101,7 +101,7 @@ fun OggiScreen(
             leading = { Avatar(name = nome, size = 36.dp) },
             trailing = {
                 HeaderIcon(Icons.Outlined.Settings, onClick = onNavigateToSettings)
-                HeaderIcon(Icons.Outlined.Notifications, onClick = onNavigateToStorico, badge = true)
+                HeaderIcon(Icons.Outlined.History, onClick = onNavigateToStorico)
             },
         )
 
