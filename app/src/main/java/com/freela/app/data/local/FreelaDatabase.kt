@@ -9,6 +9,7 @@ import com.freela.app.data.local.dao.FatturaDao
 import com.freela.app.data.local.dao.FileAllegatoDao
 import com.freela.app.data.local.dao.InterazioneDao
 import com.freela.app.data.local.dao.PreventivoDao
+import com.freela.app.data.local.dao.ProgettoDao
 import com.freela.app.data.local.dao.SessioneLavoroDao
 import com.freela.app.data.local.dao.TagDao
 import com.freela.app.data.local.dao.TaskDao
@@ -18,6 +19,7 @@ import com.freela.app.data.local.entity.FatturaEntity
 import com.freela.app.data.local.entity.FileAllegatoEntity
 import com.freela.app.data.local.entity.InterazioneEntity
 import com.freela.app.data.local.entity.PreventivoEntity
+import com.freela.app.data.local.entity.ProgettoEntity
 import com.freela.app.data.local.entity.SessioneLavoroEntity
 import com.freela.app.data.local.entity.TagEntity
 import com.freela.app.data.local.entity.TaskEntity
@@ -33,8 +35,9 @@ import com.freela.app.data.local.entity.TaskEntity
         PreventivoEntity::class,
         FatturaEntity::class,
         FileAllegatoEntity::class,
+        ProgettoEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 @TypeConverters(EnumConverters::class)
@@ -47,6 +50,7 @@ abstract class FreelaDatabase : RoomDatabase() {
     abstract fun preventivoDao(): PreventivoDao
     abstract fun fatturaDao(): FatturaDao
     abstract fun fileAllegatoDao(): FileAllegatoDao
+    abstract fun progettoDao(): ProgettoDao
 
     companion object {
         const val NAME = "freela.db"

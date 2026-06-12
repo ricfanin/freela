@@ -6,6 +6,7 @@ import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.StatoFattura
 import com.freela.app.domain.model.StatoPreventivo
+import com.freela.app.domain.model.StatoProgetto
 import com.freela.app.domain.model.TipoInterazione
 
 /**
@@ -31,4 +32,7 @@ class EnumConverters {
 
     @TypeConverter fun fromStatoFattura(v: StatoFattura): String = v.name
     @TypeConverter fun toStatoFattura(s: String): StatoFattura = StatoFattura.valueOf(s)
+
+    @TypeConverter fun fromStatoProgetto(v: StatoProgetto): String = v.name
+    @TypeConverter fun toStatoProgetto(s: String): StatoProgetto = StatoProgetto.valueOf(s)
 }

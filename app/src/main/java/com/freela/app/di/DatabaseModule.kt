@@ -8,6 +8,7 @@ import com.freela.app.data.local.dao.FatturaDao
 import com.freela.app.data.local.dao.FileAllegatoDao
 import com.freela.app.data.local.dao.InterazioneDao
 import com.freela.app.data.local.dao.PreventivoDao
+import com.freela.app.data.local.dao.ProgettoDao
 import com.freela.app.data.local.dao.SessioneLavoroDao
 import com.freela.app.data.local.dao.TagDao
 import com.freela.app.data.local.dao.TaskDao
@@ -37,4 +38,5 @@ object DatabaseModule {
     @Provides fun providePreventivoDao(db: FreelaDatabase): PreventivoDao = db.preventivoDao()
     @Provides fun provideFatturaDao(db: FreelaDatabase): FatturaDao = db.fatturaDao()
     @Provides fun provideFileAllegatoDao(db: FreelaDatabase): FileAllegatoDao = db.fileAllegatoDao()
+    @Provides fun provideProgettoDao(db: FreelaDatabase): ProgettoDao = db.progettoDao()
 }

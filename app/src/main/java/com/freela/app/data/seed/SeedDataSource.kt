@@ -6,13 +6,16 @@ import com.freela.app.data.local.entity.ClienteEntity
 import com.freela.app.data.local.entity.ClienteTagCrossRef
 import com.freela.app.data.local.entity.FatturaEntity
 import com.freela.app.data.local.entity.InterazioneEntity
+import com.freela.app.data.local.entity.ProgettoEntity
 import com.freela.app.data.local.entity.SessioneLavoroEntity
 import com.freela.app.data.local.entity.TagEntity
 import com.freela.app.data.local.entity.TaskEntity
+import com.freela.app.domain.model.FasePipeline
 import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.PersonaDemo
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.StatoFattura
+import com.freela.app.domain.model.StatoProgetto
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
@@ -33,7 +36,8 @@ class SeedDataSource @Inject constructor(
         val payload = PersonaSeed.of(persona)
 
         db.withTransaction {
-            // Wipe (CASCADE elimina interazioni/task/sessioni/fatture/preventivi/allegati legati ai clienti)
+            // Wipe (CASCADE elimina interazioni/task/sessioni/fatture/preventivi/allegati/progetti legati ai clienti)
+            db.progettoDao().cancellaTutti()
             db.fatturaDao().cancellaTutte()
             db.preventivoDao().cancellaTutti()
             db.sessioneLavoroDao().cancellaTutte()
@@ -141,6 +145,31 @@ class SeedDataSource @Inject constructor(
                         dataScadenza = scadenza,
                         dataPagamento = if (f.pagata) scadenza - daysToMillis(5) else null,
                         stato = if (f.pagata) StatoFattura.PAGATA else StatoFattura.EMESSA,
+                    )
+                )
+            }
+
+            // Progetti (uno per cliente con budget preventivato)
+            val nomiProgetto = listOf(
+                "Sito e-commerce", "Brand identity", "App mobile", "Sito vetrina",
+                "Campagna social", "Restyling logo", "Landing page", "Identità visiva",
+            )
+            payload.clienti.filter { it.budget != null }.forEachIndexed { idx, c ->
+                val cid = clientiIds[c.localId] ?: return@forEachIndexed
+                val stato = when (c.stage) {
+                    FasePipeline.CONSEGNATO, FasePipeline.IN_ATTESA_PAGAMENTO,
+                    FasePipeline.CHIUSO, FasePipeline.CLIENTE_RICORRENTE -> StatoProgetto.COMPLETATO
+                    FasePipeline.IN_CORSO -> StatoProgetto.IN_CORSO
+                    else -> StatoProgetto.DA_INIZIARE
+                }
+                db.progettoDao().insert(
+                    ProgettoEntity(
+                        clienteId = cid,
+                        nome = nomiProgetto[idx % nomiProgetto.size],
+                        deadline = now() + daysToMillis(15),
+                        oreStimate = (c.orePreventivate ?: 0f).toInt(),
+                        stato = stato,
+                        dataCreazione = now() - daysToMillis(20),
                     )
                 )
             }
