@@ -12,10 +12,6 @@ import com.freela.app.ui.theme.Freela
 
 enum class BigNumberTone { Default, Danger, Success, Warning }
 
-/**
- * BigNumber: stat tile minimal (uso nello Storico screen).
- * Riferimento: design_handoff_freela/ui.jsx:275-284
- */
 @Composable
 fun BigNumber(
     label: String,

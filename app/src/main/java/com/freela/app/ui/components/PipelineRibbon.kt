@@ -16,11 +16,7 @@ import com.freela.app.domain.model.FasePipeline
 import com.freela.app.ui.theme.Freela
 import com.freela.app.ui.theme.stageColor
 
-/**
- * Ribbon orizzontale 10 segmenti che rappresenta la pipeline. Tutti i segmenti fino allo stage
- * corrente sono pieni nel colore della fase, gli altri sono linesoft.
- * Riferimento: design_handoff_freela/screens-core.jsx:441-449
- */
+// segmenti pieni fino alla fase corrente, gli altri spenti
 @Composable
 fun PipelineRibbon(
     currentStage: FasePipeline,

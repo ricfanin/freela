@@ -16,10 +16,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.freela.app.ui.theme.Freela
 
-/**
- * Header di sezione: label mono uppercase + count + action link a destra.
- * Riferimento: design_handoff_freela/ui.jsx:167-184
- */
 @Composable
 fun SectionHead(
     label: String,

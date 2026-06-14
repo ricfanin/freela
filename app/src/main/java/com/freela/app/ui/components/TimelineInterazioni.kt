@@ -37,10 +37,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-/**
- * Timeline verticale con bubble icona + data mono + testo. Pin accent se MEETING con location.
- * Riferimento: design_handoff_freela/screens-core.jsx:497-527
- */
+// timeline verticale; i meeting con indirizzo prendono il pin in accent
 @Composable
 fun TimelineInterazioni(
     interazioni: List<Interazione>,
@@ -52,7 +49,7 @@ fun TimelineInterazioni(
         modifier = modifier
             .fillMaxWidth()
             .drawBehind {
-                // Linea verticale che connette i bubble (centro bubble 36dp = 18dp).
+                // linea che passa per il centro dei bubble (36dp -> 18dp)
                 val x = 18.dp.toPx()
                 val top = 18.dp.toPx()
                 val bottom = (size.height - 18.dp.toPx()).coerceAtLeast(top)

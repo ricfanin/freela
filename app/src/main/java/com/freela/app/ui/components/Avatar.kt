@@ -19,14 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.material3.Text
 import com.freela.app.ui.theme.Manrope
 
-/**
- * Avatar gradient — Direzione C "Living" (Pattern #1 del design).
- *
- * Iniziali del nome su gradient `linear-gradient(135°, oklch(78% 0.10 hue) → oklch(62% 0.14 hue+60°))`
- * con hue derivato dall'hash deterministico del nome. Testo bianco.
- *
- * Riferimento: design_handoff_freela/ui.jsx:43-71
- */
+// iniziali del nome su un gradient con hue derivato dall'hash del nome, così ogni cliente ha un colore stabile e suo
 @Composable
 fun Avatar(
     name: String,
@@ -83,18 +76,12 @@ private fun hashHue(s: String): Float {
     return ((h + 360) % 360).toFloat()
 }
 
-/**
- * Conversione oklch → sRGB Color (formula standard Björn Ottosson).
- * @param L lightness in [0..1]
- * @param C chroma (~0..0.4)
- * @param hDeg hue in gradi [0..360]
- */
+// conversione oklch -> sRGB (formula di björn ottosson)
 fun oklchToColor(L: Float, C: Float, hDeg: Float): Color {
     val hRad = Math.toRadians(hDeg.toDouble()).toFloat()
     val a = (C * kotlin.math.cos(hRad))
     val b = (C * kotlin.math.sin(hRad))
 
-    // OkLab → linear sRGB
     val l_ = (L + 0.3963377774f * a + 0.2158037573f * b).toDouble()
     val m_ = (L - 0.1055613458f * a - 0.0638541728f * b).toDouble()
     val s_ = (L - 0.0894841775f * a - 1.2914855480f * b).toDouble()
@@ -107,7 +94,6 @@ fun oklchToColor(L: Float, C: Float, hDeg: Float): Color {
     var g = (-1.2684380046f * l3 + 2.6097574011f * m3 - 0.3413193965f * s3).toFloat()
     var b2 = (-0.0041960863f * l3 - 0.7034186147f * m3 + 1.7076147010f * s3).toFloat()
 
-    // linear → sRGB gamma
     r = linearToSrgb(r)
     g = linearToSrgb(g)
     b2 = linearToSrgb(b2)

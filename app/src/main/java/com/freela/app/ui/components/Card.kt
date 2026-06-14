@@ -15,10 +15,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.freela.app.ui.theme.Freela
 
-/**
- * Card del design Stile C: surface bianca su bg tintato, radius 18.dp, shadow leggera.
- * Riferimento: design_handoff_freela/ui.jsx:107-121
- */
 @Composable
 fun FreelaCard(
     modifier: Modifier = Modifier,
@@ -51,8 +47,7 @@ fun FreelaCard(
     content: @Composable () -> Unit,
 ) {
     val shape = RoundedCornerShape(cornerRadius)
-    // Column (non Box) così i figli del contenuto vengono impilati in verticale.
-    // Con un Box i contenuti multipli (label, barre, righe) si sovrappongono.
+    // column e non box, se no i figli (label, barre, righe) si sovrappongono invece di impilarsi
     Column(
         modifier = modifier
             .then(if (elevated) Modifier.shadow(elevation = 4.dp, shape = shape, clip = false) else Modifier)

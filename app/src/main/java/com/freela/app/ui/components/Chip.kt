@@ -26,10 +26,6 @@ import com.freela.app.ui.theme.PillShape
 enum class ChipTone { Neutral, Accent, Success, Warning, Danger }
 enum class ChipSize { Small, Medium }
 
-/**
- * Chip "pill" Direzione C: filled background nel tono.
- * Riferimento: design_handoff_freela/ui.jsx:74-104
- */
 @Composable
 fun FreelaChip(
     text: String,

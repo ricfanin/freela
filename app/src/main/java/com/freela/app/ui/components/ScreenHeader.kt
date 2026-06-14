@@ -15,10 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.freela.app.ui.theme.Freela
 
-/**
- * Header di schermata: leading (avatar/back) + trailing (icon buttons) + title large + subtitle.
- * Riferimento: design_handoff_freela/ui.jsx:187-210
- */
 @Composable
 fun ScreenHeader(
     modifier: Modifier = Modifier,

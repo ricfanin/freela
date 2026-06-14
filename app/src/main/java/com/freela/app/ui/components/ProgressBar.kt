@@ -14,10 +14,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.freela.app.ui.theme.Freela
 
-/**
- * Progress bar con supporto overshoot: se value > max, riempie 100% in rosso.
- * Riferimento: design_handoff_freela/ui.jsx:156-164
- */
+// se overshoot e value supera max, riempie tutto in rosso invece di sforare
 @Composable
 fun FreelaProgressBar(
     value: Float,

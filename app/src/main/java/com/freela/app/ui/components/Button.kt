@@ -26,10 +26,6 @@ import com.freela.app.ui.theme.PillShape
 enum class FreelaButtonVariant { Primary, Ghost, Soft, Danger }
 enum class FreelaButtonSize { Small, Medium, Large }
 
-/**
- * Button pill (4 varianti × 3 size). Direzione C.
- * Riferimento: design_handoff_freela/ui.jsx:124-153
- */
 @Composable
 fun FreelaButton(
     text: String,

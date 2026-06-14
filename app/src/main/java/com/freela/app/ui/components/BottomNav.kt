@@ -45,10 +45,6 @@ enum class FreelaTab(val labelRes: Int, val icon: ImageVector) {
     FINANZE(R.string.nav_finanze, Icons.Outlined.Euro);
 }
 
-/**
- * Bottom nav 5 voci con pill accent.soft sull'icona attiva.
- * Riferimento: design_handoff_freela/ui.jsx:213-257
- */
 @Composable
 fun FreelaBottomNav(
     active: FreelaTab,
@@ -57,8 +53,7 @@ fun FreelaBottomNav(
 ) {
     val tokens = Freela.tokens
     val ctx = LocalContext.current
-    // In tema scuro `muted` (oklch 70%) ha la stessa luminosità di `accentBase` (icona attiva),
-    // rendendo le tab indistinguibili: per le inattive usiamo `faint` (più scuro) così l'attiva stacca.
+    // al buio muted e accentBase hanno quasi la stessa luminosità e le tab si confondono, quindi le inattive le faccio in faint che è più scuro
     val isDark = tokens.bg.luminance() < 0.5f
     val inactiveTint = if (isDark) tokens.faint else tokens.muted
     Row(
