@@ -46,7 +46,7 @@ class NuovoProgettoViewModel @Inject constructor(
                     stato = StatoProgetto.DA_INIZIARE,
                 ),
             )
-            // I task del progetto vengono creati come task del cliente collegato (PRD FR-09).
+            // i task del progetto li creo come task del cliente collegato
             taskTitoli.filter { it.isNotBlank() }.forEach { titolo ->
                 taskRepo.crea(
                     Task(

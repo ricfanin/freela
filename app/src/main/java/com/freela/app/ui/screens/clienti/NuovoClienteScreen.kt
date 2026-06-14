@@ -63,7 +63,6 @@ fun NuovoClienteScreen(
     Column(
         modifier = Modifier.fillMaxSize().background(tokens.bg).verticalScroll(rememberScrollState()),
     ) {
-        // Top bar: back + Annulla
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,7 +82,6 @@ fun NuovoClienteScreen(
             )
         }
 
-        // Avatar + anteprima nome
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,

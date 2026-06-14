@@ -48,7 +48,7 @@ class FinanzeViewModel @Inject constructor(
 
     private val now = System.currentTimeMillis()
 
-    /** Offset rispetto al mese corrente (0 = questo mese, -1 = mese scorso, …). */
+    // 0 = questo mese, -1 = mese scorso, e così via
     private val meseOffset = MutableStateFlow(0)
 
     val state: StateFlow<FinanzeUiState> = meseOffset.flatMapLatest { offset ->
@@ -70,7 +70,7 @@ class FinanzeViewModel @Inject constructor(
             val byId = clienti.associateBy { it.id }
             val fattureRighe = fatture.map { f -> FatturaRiga(f, byId[f.clienteId], f.statoUi(now)) }
             val preventiviRighe = preventivi.map { p -> PreventivoRiga(p, byId[p.clienteId]) }
-            // Attesi e in ritardo del mese selezionato (per coerenza dell'hero col mese mostrato).
+            // attesi e in ritardo solo del mese scelto, se no l'hero non torna col mese mostrato
             val fattureDelMese = fatture.filter { it.dataEmissione in startMese..endMese }
             val attesi = fattureDelMese.filter { it.statoUi(now) == StatoFatturaUi.EMESSA }.sumOf { it.importo }
             val ritardo = fattureDelMese.filter { it.statoUi(now) == StatoFatturaUi.IN_RITARDO }.sumOf { it.importo }

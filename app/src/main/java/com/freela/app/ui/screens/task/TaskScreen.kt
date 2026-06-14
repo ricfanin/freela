@@ -23,7 +23,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.AlertDialog
@@ -107,7 +106,6 @@ fun TaskScreen(
             listOf(
                 R.string.task_filter_all,
                 R.string.task_filter_urgenti,
-                R.string.task_filter_suggeriti,
                 R.string.task_filter_senza_cliente,
             ).forEachIndexed { i, res ->
                 FreelaChip(
@@ -127,7 +125,6 @@ fun TaskScreen(
                     label = when (gruppo) {
                         TaskGruppo.OGGI -> stringResource(R.string.task_section_oggi)
                         TaskGruppo.SETTIMANA -> stringResource(R.string.task_section_settimana)
-                        TaskGruppo.SUGGERITI -> stringResource(R.string.task_section_suggeriti)
                     },
                     count = righe.size,
                 )
@@ -311,17 +308,14 @@ private fun oraDaScadenza(scadenza: Long?): String {
 @Composable
 private fun TaskRow(r: TaskRiga, onCheck: () -> Unit, onClick: () -> Unit) {
     val tokens = Freela.tokens
-    val sugg = r.gruppo == TaskGruppo.SUGGERITI
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(if (sugg) tokens.accentSofter else Color.Transparent)
             .clickable { onClick() }
             .padding(horizontal = 16.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        // Checkbox
         Box(
             modifier = Modifier
                 .size(22.dp)
@@ -335,19 +329,7 @@ private fun TaskRow(r: TaskRiga, onCheck: () -> Unit, onClick: () -> Unit) {
             }
         }
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (sugg) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Icon(Icons.Outlined.AutoAwesome, contentDescription = null, tint = tokens.accentBase, modifier = Modifier.size(11.dp))
-                        Text(
-                            stringResource(R.string.task_badge_suggerito).uppercase(),
-                            color = tokens.accentBase,
-                            style = tokens.typeExtras.monoCap,
-                        )
-                    }
-                }
-                Text(r.task.titolo, color = tokens.ink, fontSize = 14.5f.sp, fontWeight = FontWeight.Medium)
-            }
+            Text(r.task.titolo, color = tokens.ink, fontSize = 14.5f.sp, fontWeight = FontWeight.Medium)
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 r.cliente?.let {
@@ -371,7 +353,6 @@ private fun TaskRow(r: TaskRiga, onCheck: () -> Unit, onClick: () -> Unit) {
 
 private fun passaFiltro(r: TaskRiga, filtro: Int): Boolean = when (filtro) {
     1 -> r.task.priorita == com.freela.app.domain.model.Priorita.ALTA
-    2 -> r.gruppo == TaskGruppo.SUGGERITI
-    3 -> r.cliente == null
+    2 -> r.cliente == null
     else -> true
 }

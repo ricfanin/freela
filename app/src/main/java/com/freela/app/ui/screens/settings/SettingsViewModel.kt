@@ -27,7 +27,7 @@ class SettingsViewModel @Inject constructor(
         .map { SettingsUiState(tema = it) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
-    /** Reset completo: svuota il database e azzera le preferenze, poi naviga all'onboarding. */
+    // reset completo: svuota il db e azzera le preferenze, poi torna all'onboarding
     fun logout(onDone: () -> Unit) {
         viewModelScope.launch {
             seed.clear()

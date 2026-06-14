@@ -89,7 +89,6 @@ fun PipelineScreen(
             },
         )
 
-        // Chip filtro per fase
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
@@ -106,7 +105,6 @@ fun PipelineScreen(
             }
         }
 
-        // Header fase corrente
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -143,7 +141,6 @@ fun PipelineScreen(
             }
         }
 
-        // Lista verticale clienti della fase
         LazyColumn(
             modifier = Modifier.weight(1f).fillMaxWidth(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),

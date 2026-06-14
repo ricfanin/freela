@@ -14,10 +14,7 @@ class OnboardingViewModel @Inject constructor(
     private val seed: SeedDataSource,
 ) : ViewModel() {
 
-    /**
-     * Completa onboarding: carica il dataset demo, salva il profilo e setta il flag.
-     * Onclick "Inizia" della schermata.
-     */
+    // carica il dataset demo, salva il profilo e segna l'onboarding come fatto
     fun completaOnboarding(
         nome: String = "",
         ruolo: String? = null,

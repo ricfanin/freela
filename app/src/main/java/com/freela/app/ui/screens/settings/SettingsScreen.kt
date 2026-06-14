@@ -66,7 +66,6 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val tokens = Freela.tokens
 
-    // Preferenze notifiche, persistite via DataStore.
     val notifScadenze by viewModel.notifScadenze.collectAsStateWithLifecycle()
     val notifPromemoria by viewModel.notifPromemoria.collectAsStateWithLifecycle()
     val notifRiepilogo by viewModel.notifRiepilogo.collectAsStateWithLifecycle()
@@ -90,7 +89,6 @@ fun SettingsScreen(
             },
         )
 
-        // TEMA
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp)) {
             SectionHead(label = stringResource(R.string.settings_section_tema))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
@@ -118,7 +116,6 @@ fun SettingsScreen(
             }
         }
 
-        // NOTIFICHE
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp)) {
             SectionHead(label = stringResource(R.string.settings_section_notifiche))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
@@ -147,7 +144,6 @@ fun SettingsScreen(
             }
         }
 
-        // APP
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp)) {
             SectionHead(label = stringResource(R.string.settings_section_app))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
@@ -162,7 +158,6 @@ fun SettingsScreen(
             }
         }
 
-        // ACCOUNT
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 10.dp)) {
             SectionHead(label = stringResource(R.string.settings_section_account))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {

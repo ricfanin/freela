@@ -2,9 +2,7 @@ package com.freela.app.ui.navigation
 
 import com.freela.app.ui.components.FreelaTab
 
-/**
- * Routes della NavHost. Single source of truth dei nomi rotta.
- */
+// nomi delle rotte, definiti tutti qui così non si scrivono a mano in giro
 object Routes {
     const val ONBOARDING = "onboarding"
     const val OGGI = "oggi"
@@ -27,7 +25,7 @@ object Routes {
     const val ARG_CLIENTE_ID = "clienteId"
 }
 
-/** Route dove mostrare la BottomNav. */
+// rotte su cui si vede la bottom bar
 val topLevelRoutes = mapOf(
     Routes.OGGI to FreelaTab.OGGI,
     Routes.PIPELINE to FreelaTab.PIPELINE,

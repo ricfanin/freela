@@ -106,7 +106,6 @@ fun ClienteDetailScreen(
             .fillMaxSize()
             .background(tokens.bg),
     ) {
-        // Pattern #6 — hero gradient banner (top 220.dp)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,7 +133,6 @@ fun ClienteDetailScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 30.dp),
         ) {
-            // Top toolbar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -149,7 +147,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Header cliente
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -172,7 +169,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Quick actions
             Row(
                 modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 18.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -211,7 +207,6 @@ fun ClienteDetailScreen(
                 )
             }
 
-            // Pipeline ribbon
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 22.dp)) {
                 SectionHead(
                     label = stringResource(R.string.cliente_section_fase),
@@ -239,7 +234,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Prossima / Ultima
             Row(
                 modifier = Modifier.padding(horizontal = 22.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -290,7 +284,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Progetto (se budget)
             cliente.importoPreventivato?.let { budget ->
                 Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 18.dp)) {
                     SectionHead(label = stringResource(R.string.cliente_section_progetto))
@@ -337,7 +330,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Timeline
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 14.dp)) {
                 SectionHead(
                     label = stringResource(R.string.cliente_section_storico),
@@ -347,7 +339,6 @@ fun ClienteDetailScreen(
                 TimelineInterazioni(interazioni = state.timeline.take(5))
             }
 
-            // Finanze inline
             if (state.fatture.isNotEmpty()) {
                 Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 6.dp)) {
                     SectionHead(label = stringResource(R.string.cliente_section_finanze), actionText = stringResource(R.string.cliente_action_tutte), onActionClick = onNavigateToFinanze)
@@ -400,7 +391,6 @@ fun ClienteDetailScreen(
                 }
             }
 
-            // Note
             cliente.note?.let { note ->
                 Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 18.dp)) {
                     SectionHead(label = stringResource(R.string.cliente_section_note))

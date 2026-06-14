@@ -1,11 +1,15 @@
 package com.freela.app.ui.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,6 +36,7 @@ import com.freela.app.ui.screens.settings.SettingsScreen
 import com.freela.app.ui.screens.storico.StoricoScreen
 import com.freela.app.ui.screens.task.TaskScreen
 import com.freela.app.ui.screens.tracking.TimerScreen
+import com.freela.app.ui.theme.Freela
 
 @Composable
 fun FreelaNavHost(
@@ -41,19 +46,25 @@ fun FreelaNavHost(
 ) {
     val navController = rememberNavController()
     val bootState by bootViewModel.state.collectAsStateWithLifecycle()
+
+    // aspetto il boot prima di costruire la navhost, se no la startDestination cambia
+    // a metà e si ricrea il grafo, e la bottom bar si rompe (oggi finiva su finanze)
+    if (!bootState.ready) {
+        Box(Modifier.fillMaxSize().background(Freela.tokens.bg))
+        return
+    }
+
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val currentTab: FreelaTab? = topLevelRoutes[currentRoute]
 
-    // Determina la start destination dinamicamente quando il boot è pronto
-    val startDestination = when {
-        !bootState.ready -> Routes.ONBOARDING // splash effetto: mostra onboarding mentre carica
-        bootState.onboardingCompleted -> Routes.OGGI
-        else -> Routes.ONBOARDING
+    // calcolata una volta sola così resta stabile e il grafo non si ricrea, il passaggio
+    // da onboarding a oggi lo fa a mano OnboardingScreen.onStart
+    val startDestination = remember {
+        if (bootState.onboardingCompleted) Routes.OGGI else Routes.ONBOARDING
     }
 
-    // Deep-link dalle notifiche: naviga verso la destinazione richiesta una volta
-    // che il boot è pronto e l'onboarding è completato.
+    // deep-link dalle notifiche: navigo quando il boot è pronto e l'onboarding è fatto
     LaunchedEffect(deepLinkDestination, bootState.ready) {
         val dest = deepLinkDestination
         if (dest != null && bootState.ready && bootState.onboardingCompleted) {

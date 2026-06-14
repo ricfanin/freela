@@ -63,7 +63,6 @@ class ProgettoDetailViewModel @Inject constructor(
         }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ProgettoDetailState())
 
-    /** Marca/smarca come preferito il cliente collegato al progetto. */
     fun cambiaPreferitoCliente() {
         val cliente = state.value.cliente ?: return
         viewModelScope.launch { clienteRepo.cambiaPreferito(cliente.id, !cliente.preferito) }

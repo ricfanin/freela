@@ -15,9 +15,7 @@ data class BootState(
     val onboardingCompleted: Boolean = false,
 )
 
-/**
- * Decide la startDestination del NavHost in base alle preferenze utente (onboarding già fatto?).
- */
+// decide la startDestination in base a se l'onboarding è già stato fatto
 @HiltViewModel
 class BootViewModel @Inject constructor(
     settings: SettingsRepository,

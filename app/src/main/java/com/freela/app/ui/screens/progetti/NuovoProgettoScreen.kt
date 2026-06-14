@@ -50,6 +50,8 @@ import com.freela.app.R
 import com.freela.app.domain.model.Cliente
 import com.freela.app.ui.components.FreelaButton
 import com.freela.app.ui.components.FreelaButtonSize
+import com.freela.app.ui.components.SelectList
+import com.freela.app.ui.components.SelectOption
 import com.freela.app.ui.theme.Freela
 
 private class TaskBozza(nome: String, ore: String) {
@@ -98,7 +100,6 @@ fun NuovoProgettoScreen(
                 fontWeight = FontWeight.SemiBold,
             )
 
-            // Selettore cliente
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.np_cliente_label).uppercase(), color = tokens.muted, style = tokens.typeExtras.monoCap)
                 Row(
@@ -127,7 +128,6 @@ fun NuovoProgettoScreen(
             Field(stringResource(R.string.np_nome_label), nome, { nome = it }, stringResource(R.string.np_nome_placeholder))
             Field(stringResource(R.string.np_deadline_label), deadline, { deadline = it }, "gg/mm/aaaa")
 
-            // Task del progetto
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(stringResource(R.string.np_task_label).uppercase(), color = tokens.muted, style = tokens.typeExtras.monoCap)
                 tasks.forEachIndexed { i, t ->
@@ -207,16 +207,15 @@ fun NuovoProgettoScreen(
             },
             title = { Text(stringResource(R.string.np_cliente_label)) },
             text = {
-                Column {
-                    clienti.forEach { c ->
-                        Text(
-                            c.nome,
-                            color = tokens.ink,
-                            fontSize = 15.sp,
-                            modifier = Modifier.fillMaxWidth().clickable { selectedCliente = c; showClienteDialog = false }.padding(vertical = 12.dp),
-                        )
-                    }
-                }
+                SelectList(
+                    options = clienti.map { SelectOption(it.id, it.nome, avatar = true) },
+                    selectedId = clienteSel?.id,
+                    onPick = { id ->
+                        selectedCliente = clienti.firstOrNull { it.id == id }
+                        showClienteDialog = false
+                    },
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                )
             },
         )
     }

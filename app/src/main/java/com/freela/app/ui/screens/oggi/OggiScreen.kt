@@ -21,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Pause
 import androidx.compose.material.icons.outlined.Settings
@@ -105,7 +104,6 @@ fun OggiScreen(
             },
         )
 
-        // Card sessione (centrale)
         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             if (state.sessione != null) {
                 SessioneCard(
@@ -121,7 +119,6 @@ fun OggiScreen(
             }
         }
 
-        // Riassunto finanziario
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
             SectionHead(
                 label = stringResource(R.string.oggi_section_riassunto),
@@ -152,14 +149,6 @@ fun OggiScreen(
             )
         }
 
-        // Sezioni operative (PRD FR-16)
-        if (state.daContattare.isNotEmpty()) {
-            SezioneOperativa(
-                titolo = stringResource(R.string.oggi_section_contattare),
-                voci = state.daContattare,
-                onClickVoce = { it.clienteId?.let(onNavigateToCliente) },
-            )
-        }
         if (state.daConsegnare.isNotEmpty()) {
             SezioneOperativa(
                 titolo = stringResource(R.string.oggi_section_consegnare),
@@ -293,29 +282,27 @@ private fun SessioneCard(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
         )
         Spacer(Modifier.height(12.dp))
-        // Riga cliente
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 12.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(tokens.surface)
-                .clickable { onApriCliente() }
                 .padding(horizontal = 13.dp, vertical = 11.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             Avatar(name = clienteNome ?: "—", size = 36.dp)
             Column(modifier = Modifier.weight(1f)) {
-                Text(descrizione ?: stringResource(R.string.timer_no_activity), color = tokens.ink, fontSize = 13.5f.sp, fontWeight = FontWeight.SemiBold)
+                if (descrizione != null) {
+                    Text(descrizione, color = tokens.ink, fontSize = 13.5f.sp, fontWeight = FontWeight.SemiBold)
+                }
                 if (clienteNome != null) {
                     Text(clienteNome, color = tokens.muted, fontSize = 12.sp)
                 }
             }
-            Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null, tint = tokens.faint, modifier = Modifier.size(18.dp))
         }
         Spacer(Modifier.height(12.dp))
-        // Controlli
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -419,14 +406,12 @@ private fun RiassuntoCard(
                 }
             }
         }
-        // Stat row
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 6.dp, vertical = 6.dp)) {
             StatCol("FATT.", formatK(fatturato), Modifier.weight(1f))
             StatCol("INCASS.", formatK(incassato), Modifier.weight(1f))
             StatCol("ORE", "${oreMese.toInt()}h", Modifier.weight(1f))
             StatCol("CLIENTI", "$numClienti", Modifier.weight(1f))
         }
-        // Obiettivo
         val perc = if (obiettivo > 0) (incassato / obiettivo).coerceIn(0.0, 1.0) else 0.0
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

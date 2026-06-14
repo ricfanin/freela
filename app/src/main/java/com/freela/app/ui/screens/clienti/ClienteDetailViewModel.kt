@@ -69,23 +69,16 @@ class ClienteDetailViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ClienteDetailUiState())
 
-    /**
-     * Registra un'interazione (PRD FR-14). Se [conPosizione] è true (solo per MEETING, US-13/FR-15),
-     * acquisisce posizione GPS e indirizzo via reverse geocoding. Il permesso va già concesso dalla UI.
-     */
-    /** Cambia la fase pipeline del cliente (PRD FR-05). */
     fun cambiaFase(fase: FasePipeline) {
         if (clienteId == 0L) return
         viewModelScope.launch { clienteRepo.cambiaFase(clienteId, fase) }
     }
 
-    /** Marca/smarca il cliente come preferito (persistito). */
     fun cambiaPreferito() {
         val corrente = state.value.cliente ?: return
         viewModelScope.launch { clienteRepo.cambiaPreferito(clienteId, !corrente.preferito) }
     }
 
-    /** Modifica i dati anagrafici del cliente (PRD FR-01). */
     fun aggiornaCliente(nome: String, telefono: String?, email: String?, fonte: String?, note: String?) {
         val corrente = state.value.cliente ?: return
         viewModelScope.launch {
@@ -101,7 +94,6 @@ class ClienteDetailViewModel @Inject constructor(
         }
     }
 
-    /** Elimina il cliente e i record collegati (PRD FR-01). */
     fun elimina(onDone: () -> Unit) {
         if (clienteId == 0L) return
         viewModelScope.launch {
@@ -110,7 +102,6 @@ class ClienteDetailViewModel @Inject constructor(
         }
     }
 
-    /** Crea un task/reminder collegato al cliente (PRD FR-09), schedulato fra [giorni] giorni. */
     fun aggiungiReminder(titolo: String, giorni: Int) {
         if (clienteId == 0L || titolo.isBlank()) return
         val scadenza = System.currentTimeMillis() + giorni.coerceAtLeast(0) * 86_400_000L

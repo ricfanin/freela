@@ -100,7 +100,6 @@ fun ProgettoDetailScreen(
             FreelaChip(statoLabel, tone = statoTone, dot = true, size = ChipSize.Small)
         }
 
-        // Stat row
         Box(modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp)) {
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(16.dp)) {
                 Column {
@@ -120,7 +119,6 @@ fun ProgettoDetailScreen(
             }
         }
 
-        // Tabs Task / Documenti
         Row(
             modifier = Modifier
                 .padding(horizontal = 22.dp, vertical = 6.dp)

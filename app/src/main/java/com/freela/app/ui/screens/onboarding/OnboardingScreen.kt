@@ -77,14 +77,6 @@ import com.freela.app.ui.theme.stageColor
 
 private const val ONB_STEPS = 4
 
-/**
- * Landing / onboarding a 4 step (FR-12 · NFR-12):
- *   0 · Welcome    posizionamento + feature
- *   1 · Profilo    nome, lavoro, valuta
- *   2 · Notifiche  richiesta POST_NOTIFICATIONS contestualizzata
- *   3 · Pronto     recap dello stato impostato
- * Riferimento design: design_handoff_freela/screens-aux.jsx:471-846
- */
 @Composable
 fun OnboardingScreen(
     onStart: () -> Unit,
@@ -137,7 +129,6 @@ fun OnboardingScreen(
             .fillMaxSize()
             .background(tokens.bg),
     ) {
-        // Top bar: logo allo step 0, freccia indietro altrimenti
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -180,7 +171,6 @@ fun OnboardingScreen(
             }
         }
 
-        // Contenuto dello step corrente
         Box(modifier = Modifier.weight(1f).padding(horizontal = 22.dp)) {
             when (step) {
                 0 -> StepWelcome()
@@ -197,7 +187,6 @@ fun OnboardingScreen(
             }
         }
 
-        // Footer: dots + CTA primaria + azione secondaria
         Column(
             modifier = Modifier.padding(start = 22.dp, end = 22.dp, top = 16.dp, bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -261,9 +250,6 @@ private fun SecondaryAction(text: String, onClick: () -> Unit) {
     )
 }
 
-// ----------------------------------------------------------------
-// STEP 0 · Welcome
-// ----------------------------------------------------------------
 @Composable
 private fun StepWelcome() {
     val tokens = Freela.tokens
@@ -294,9 +280,6 @@ private fun StepWelcome() {
     }
 }
 
-// ----------------------------------------------------------------
-// STEP 1 · Profilo
-// ----------------------------------------------------------------
 enum class OnbRole(val labelRes: Int) {
     DESIGNER(R.string.onb_role_designer),
     DEVELOPER(R.string.onb_role_developer),
@@ -341,13 +324,11 @@ private fun StepProfilo(
             style = MaterialTheme.typography.bodyMedium.copy(lineHeight = 20.sp),
         )
 
-        // Nome
         Spacer(Modifier.height(22.dp))
         FieldLabel(stringResource(R.string.onb_profilo_name_label))
         Spacer(Modifier.height(8.dp))
         NameField(name = name, onNameChange = onNameChange)
 
-        // Lavoro
         Spacer(Modifier.height(22.dp))
         FieldLabel(stringResource(R.string.onb_profilo_work_label))
         Spacer(Modifier.height(10.dp))
@@ -372,7 +353,6 @@ private fun StepProfilo(
             }
         }
 
-        // Valuta
         Spacer(Modifier.height(22.dp))
         FieldLabel(stringResource(R.string.onb_profilo_currency_label))
         Spacer(Modifier.height(10.dp))
@@ -458,9 +438,6 @@ private fun NameField(name: String, onNameChange: (String) -> Unit) {
     }
 }
 
-// ----------------------------------------------------------------
-// STEP 2 · Notifiche
-// ----------------------------------------------------------------
 @Composable
 private fun StepNotifiche() {
     val tokens = Freela.tokens
@@ -537,9 +514,6 @@ private data class NotifSample(
     val icon: ImageVector,
 )
 
-// ----------------------------------------------------------------
-// STEP 3 · Pronto
-// ----------------------------------------------------------------
 @Composable
 private fun StepPronto(name: String, role: OnbRole, currency: OnbCurrency, notifAttive: Boolean) {
     val tokens = Freela.tokens
@@ -602,9 +576,6 @@ private fun StepPronto(name: String, role: OnbRole, currency: OnbCurrency, notif
     }
 }
 
-// ----------------------------------------------------------------
-// Elementi condivisi
-// ----------------------------------------------------------------
 @Composable
 private fun Logotype() {
     val tokens = Freela.tokens

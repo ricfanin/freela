@@ -21,7 +21,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoAwesome
-import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,14 +85,6 @@ fun StoricoScreen(
                     Icon(Icons.Outlined.ArrowBack, contentDescription = null, tint = tokens.ink, modifier = Modifier.size(18.dp))
                 }
             },
-            trailing = {
-                Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).border(1.dp, tokens.line, CircleShape).padding(8.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Icons.Outlined.CalendarMonth, contentDescription = null, tint = tokens.ink, modifier = Modifier.size(16.dp))
-                }
-            },
         )
 
         Row(modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -144,7 +135,6 @@ fun StoricoScreen(
             )
         }
 
-        // Distribuzione
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 4.dp)) {
             SectionHead(label = stringResource(R.string.storico_section_distribuzione))
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(18.dp)) {
@@ -176,7 +166,6 @@ fun StoricoScreen(
             }
         }
 
-        // Top clienti
         if (state.topClienti.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 18.dp)) {
                 SectionHead(label = stringResource(R.string.storico_section_top))

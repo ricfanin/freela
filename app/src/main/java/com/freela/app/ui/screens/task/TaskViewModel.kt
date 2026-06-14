@@ -3,7 +3,6 @@ package com.freela.app.ui.screens.task
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
-import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.Task
 import com.freela.app.domain.repository.ClienteRepository
@@ -17,7 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-enum class TaskGruppo { OGGI, SETTIMANA, SUGGERITI }
+enum class TaskGruppo { OGGI, SETTIMANA }
 
 data class TaskRiga(val task: Task, val cliente: Cliente?, val gruppo: TaskGruppo)
 data class TaskUiState(
@@ -42,9 +41,7 @@ class TaskViewModel @Inject constructor(
         val endOfWeek = endOfToday + 7L * 86400000L
         val righe = tasks.map { t ->
             val grp = when {
-                t.origine == OrigineTask.SUGGERITO -> TaskGruppo.SUGGERITI
                 t.scadenza <= endOfToday -> TaskGruppo.OGGI
-                t.scadenza <= endOfWeek -> TaskGruppo.SETTIMANA
                 else -> TaskGruppo.SETTIMANA
             }
             TaskRiga(t, byId[t.clienteId], grp)
@@ -70,7 +67,6 @@ class TaskViewModel @Inject constructor(
                     clienteId = clienteId,
                     scadenza = scadenza,
                     priorita = priorita,
-                    origine = OrigineTask.MANUALE,
                 ),
             )
         }

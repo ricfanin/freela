@@ -108,7 +108,6 @@ fun FinanzeScreen(
             },
         )
 
-        // Hero card
         Box(modifier = Modifier.padding(horizontal = 22.dp, vertical = 8.dp)) {
             FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(20.dp)) {
                 Column {
@@ -124,7 +123,6 @@ fun FinanzeScreen(
                         style = tokens.typeExtras.displayNum,
                     )
                     Spacer(Modifier.height(18.dp))
-                    // Stacked bar
                     val total = state.fatturatoMese.coerceAtLeast(1.0)
                     Row(
                         modifier = Modifier
@@ -153,7 +151,6 @@ fun FinanzeScreen(
             }
         }
 
-        // Fatture
         Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 12.dp)) {
             SectionHead(label = stringResource(R.string.finanze_section_fatture), count = state.fatture.size)
             Spacer(Modifier.height(12.dp))
@@ -216,7 +213,6 @@ fun FinanzeScreen(
             }
         }
 
-        // Preventivi
         if (state.preventivi.isNotEmpty()) {
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 12.dp)) {
                 SectionHead(label = stringResource(R.string.finanze_section_preventivi), count = state.preventivi.size)
@@ -351,7 +347,6 @@ private fun NuovaVoceFinanzaDialog(
                 Text(stringResource(R.string.finanze_nessun_cliente))
             } else {
                 Column {
-                    // Tipo
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FreelaChip(
                             stringResource(R.string.finanze_tipo_fattura),

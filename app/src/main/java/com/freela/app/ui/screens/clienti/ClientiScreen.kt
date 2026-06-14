@@ -81,7 +81,6 @@ fun ClientiScreen(
             },
         )
 
-        // Search bar pill
         Row(
             modifier = Modifier
                 .padding(horizontal = 22.dp, vertical = 4.dp)
@@ -112,7 +111,6 @@ fun ClientiScreen(
 
         Spacer(Modifier.height(8.dp))
 
-        // Lista clienti raggruppata
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 22.dp, vertical = 4.dp),

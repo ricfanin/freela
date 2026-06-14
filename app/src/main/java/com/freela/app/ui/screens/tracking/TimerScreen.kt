@@ -3,6 +3,8 @@ package com.freela.app.ui.screens.tracking
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,15 +16,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.PlayArrow
 import androidx.compose.material.icons.outlined.Stop
@@ -52,16 +51,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.freela.app.R
 import com.freela.app.domain.model.Cliente
-import com.freela.app.domain.model.SessioneLavoro
+import com.freela.app.domain.model.Progetto
 import com.freela.app.service.TimerForegroundService
 import com.freela.app.ui.components.Avatar
-import com.freela.app.ui.components.ChipSize
-import com.freela.app.ui.components.ChipTone
 import com.freela.app.ui.components.FreelaCard
-import com.freela.app.ui.components.FreelaChip
 import com.freela.app.ui.components.FreelaProgressBar
 import com.freela.app.ui.components.ScreenHeader
 import com.freela.app.ui.components.SectionHead
+import com.freela.app.ui.components.SelectList
+import com.freela.app.ui.components.SelectOption
 import com.freela.app.ui.theme.Freela
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -81,11 +79,9 @@ fun TimerScreen(
     val inCorso = sessione != null
 
     var showClienteDialog by remember { mutableStateOf(false) }
+    var showProgettoDialog by remember { mutableStateOf(false) }
     var showManuale by remember { mutableStateOf(false) }
-    var mostraTutte by remember { mutableStateOf(false) }
-    var sessioneDaEliminare by remember { mutableStateOf<SessioneLavoro?>(null) }
 
-    // Cronometro live: tick ogni secondo quando una sessione è attiva.
     val elapsedMillis by produceState(0L, sessione?.inizio) {
         val inizio = sessione?.inizio
         if (inizio == null) {
@@ -113,17 +109,6 @@ fun TimerScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(Icons.Outlined.ArrowBack, contentDescription = stringResource(R.string.content_desc_back), tint = tokens.ink, modifier = Modifier.size(18.dp))
-                }
-            },
-            trailing = {
-                Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape)
-                        .border(1.dp, tokens.line, CircleShape)
-                        .clickable { mostraTutte = !mostraTutte }
-                        .padding(8.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(Icons.Outlined.History, contentDescription = null, tint = if (mostraTutte) tokens.accentBase else tokens.ink, modifier = Modifier.size(16.dp))
                 }
             },
         )
@@ -165,7 +150,6 @@ fun TimerScreen(
                 )
             }
 
-            // Client + activity selector
             Spacer(Modifier.height(22.dp))
             FreelaCard(
                 modifier = Modifier
@@ -198,6 +182,40 @@ fun TimerScreen(
                 }
             }
 
+            // se il cliente ha più progetti, qui scegli a quale attribuire la sessione
+            if (state.clienteAttivo != null && state.progettiCliente.isNotEmpty()) {
+                Spacer(Modifier.height(10.dp))
+                FreelaCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showProgettoDialog = true },
+                    padding = PaddingValues(horizontal = 16.dp, vertical = 14.dp),
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.timer_section_progetto),
+                                color = tokens.muted,
+                                fontSize = 12.sp,
+                                style = MaterialTheme.typography.bodySmall,
+                            )
+                            Text(
+                                state.progettoAttivo?.nome ?: stringResource(R.string.timer_nessun_progetto),
+                                color = tokens.ink,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                        Icon(
+                            Icons.Outlined.KeyboardArrowDown,
+                            contentDescription = null,
+                            tint = tokens.faint,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
+
             Spacer(Modifier.height(22.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 if (inCorso) {
@@ -207,18 +225,23 @@ fun TimerScreen(
                 } else {
                     val cliente = state.clienteAttivo
                     CircleAction(Icons.Outlined.PlayArrow, size = 64.dp, isPrimary = true, primaryColor = tokens.accentBase) {
-                        if (cliente != null) TimerForegroundService.avvia(context, cliente.id, cliente.nome)
+                        if (cliente != null) {
+                            TimerForegroundService.avvia(
+                                context,
+                                cliente.id,
+                                cliente.nome,
+                                progettoId = state.progettoAttivo?.id,
+                            )
+                        }
                     }
                 }
                 val cliente = state.clienteAttivo
                 CircleAction(Icons.Outlined.Add, size = 56.dp, isPrimary = false) {
-                    // Inserimento manuale di una sessione (PRD FR-19): apre il form durata/descrizione.
                     if (cliente != null) showManuale = true
                 }
             }
         }
 
-        // Progetto
         state.clienteAttivo?.let { c ->
             Column(modifier = Modifier.padding(horizontal = 22.dp, vertical = 26.dp)) {
                 SectionHead(label = stringResource(R.string.timer_section_progetto))
@@ -253,53 +276,6 @@ fun TimerScreen(
             }
         }
 
-        // Sessioni recenti
-        if (state.sessioniRecenti.isNotEmpty()) {
-            val visibili = if (mostraTutte) state.sessioniRecenti else state.sessioniRecenti.take(5)
-            Column(modifier = Modifier.padding(horizontal = 22.dp).padding(bottom = 24.dp)) {
-                SectionHead(
-                    label = stringResource(R.string.timer_section_recenti),
-                    count = state.sessioniRecenti.size,
-                    actionText = if (mostraTutte) stringResource(R.string.timer_mostra_meno) else stringResource(R.string.cliente_action_tutte),
-                    onActionClick = { mostraTutte = !mostraTutte },
-                )
-                FreelaCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
-                    Column {
-                        visibili.forEachIndexed { i, s ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { sessioneDaEliminare = s }
-                                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                            ) {
-                                Text(
-                                    formatGiorno(s.inizio).uppercase(),
-                                    color = tokens.faint,
-                                    style = tokens.typeExtras.monoCap,
-                                    modifier = Modifier.width(46.dp),
-                                )
-                                Text(
-                                    s.descrizione ?: stringResource(R.string.timer_no_activity),
-                                    color = tokens.ink,
-                                    fontSize = 13.5f.sp,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                Text(
-                                    formatDurataSessione(s.inizio, s.fine),
-                                    color = tokens.muted,
-                                    style = tokens.typeExtras.monoMeta,
-                                )
-                            }
-                            if (i < visibili.size - 1) {
-                                Box(Modifier.fillMaxWidth().height(1.dp).background(tokens.lineSoft))
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     if (showClienteDialog) {
@@ -314,36 +290,32 @@ fun TimerScreen(
         )
     }
 
+    if (showProgettoDialog) {
+        SelezionaProgettoDialog(
+            progetti = state.progettiCliente,
+            selezionato = state.progettoAttivo?.id,
+            onDismiss = { showProgettoDialog = false },
+            onPick = { id ->
+                viewModel.selezionaProgetto(id)
+                showProgettoDialog = false
+            },
+        )
+    }
+
     if (showManuale) {
         val cliente = state.clienteAttivo
+        val progettoId = state.progettoAttivo?.id
         OreManualiDialog(
             onDismiss = { showManuale = false },
             onConferma = { minuti, descr ->
-                cliente?.let { viewModel.aggiungiManuale(it.id, minuti, descr) }
+                cliente?.let { viewModel.aggiungiManuale(it.id, progettoId, minuti, descr) }
                 showManuale = false
             },
         )
     }
 
-    sessioneDaEliminare?.let { s ->
-        AlertDialog(
-            onDismissRequest = { sessioneDaEliminare = null },
-            confirmButton = {
-                TextButton(onClick = {
-                    viewModel.eliminaSessione(s.id)
-                    sessioneDaEliminare = null
-                }) { Text(stringResource(R.string.finanze_azione_elimina), color = Freela.tokens.danger) }
-            },
-            dismissButton = {
-                TextButton(onClick = { sessioneDaEliminare = null }) { Text(stringResource(R.string.timer_annulla)) }
-            },
-            title = { Text(stringResource(R.string.timer_section_recenti)) },
-            text = { Text(s.descrizione ?: stringResource(R.string.timer_no_activity)) },
-        )
-    }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SelezionaClienteDialog(
     clienti: List<Cliente>,
@@ -358,16 +330,38 @@ private fun SelezionaClienteDialog(
         },
         title = { Text(stringResource(R.string.timer_seleziona_cliente)) },
         text = {
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                clienti.forEach { c ->
-                    FreelaChip(
-                        c.nome,
-                        tone = if (c.id == selezionato) ChipTone.Accent else ChipTone.Neutral,
-                        size = ChipSize.Small,
-                        modifier = Modifier.clickable { onPick(c.id) },
-                    )
-                }
-            }
+            SelectList(
+                options = clienti.map { SelectOption(it.id, it.nome, avatar = true) },
+                selectedId = selezionato,
+                onPick = { id -> id?.let(onPick) },
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+            )
+        },
+    )
+}
+
+@Composable
+private fun SelezionaProgettoDialog(
+    progetti: List<Progetto>,
+    selezionato: Long?,
+    onDismiss: () -> Unit,
+    onPick: (Long?) -> Unit,
+) {
+    val nessuno = stringResource(R.string.timer_nessun_progetto)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.timer_annulla)) }
+        },
+        title = { Text(stringResource(R.string.timer_seleziona_progetto)) },
+        text = {
+            SelectList(
+                options = listOf(SelectOption(null, nessuno)) +
+                    progetti.map { SelectOption(it.id, it.nome) },
+                selectedId = selezionato,
+                onPick = onPick,
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+            )
         },
     )
 }
@@ -414,15 +408,6 @@ private fun OreManualiDialog(
             }
         },
     )
-}
-
-private fun formatGiorno(millis: Long): String =
-    SimpleDateFormat("EEE d", Locale.ITALIAN).format(Date(millis))
-
-private fun formatDurataSessione(inizio: Long, fine: Long?): String {
-    val durata = ((fine ?: System.currentTimeMillis()) - inizio).coerceAtLeast(0)
-    val totalMin = durata / 60000
-    return String.format(Locale.getDefault(), "%d:%02d", totalMin / 60, totalMin % 60)
 }
 
 private fun formatElapsed(millis: Long): String {

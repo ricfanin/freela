@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.Fattura
-import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.SessioneLavoro
 import com.freela.app.domain.model.Task
 import com.freela.app.domain.repository.ClienteRepository
@@ -26,17 +25,13 @@ import kotlinx.coroutines.flow.stateIn
 
 enum class PeriodoOggi { SETTIMANA, MESE, ANNO }
 
-/** Voce di una sezione operativa della dashboard (task, follow-up, pagamento). */
 data class OggiVoce(
     val titolo: String,
     val sottotitolo: String,
     val clienteId: Long?,
 )
 
-/**
- * Home "Oggi": sessione di lavoro in corso, riassunto finanziario del periodo
- * e le tre sezioni operative del PRD FR-16 (da contattare, da consegnare, pagamenti).
- */
+// stato della home: sessione in corso, riassunto finanziario e le tre sezioni (da contattare, da consegnare, pagamenti)
 data class OggiUiState(
     val nomeUtente: String? = null,
     val sessione: SessioneLavoro? = null,
@@ -44,12 +39,9 @@ data class OggiUiState(
     val periodo: PeriodoOggi = PeriodoOggi.MESE,
     val fatturato: Double = 0.0,
     val incassato: Double = 0.0,
-    val attesi: Double = 0.0,
-    val inRitardo: Double = 0.0,
     val numClienti: Int = 0,
     val oreMese: Float = 0f,
     val obiettivo: Double = 6000.0,
-    val daContattare: List<OggiVoce> = emptyList(),
     val daConsegnare: List<OggiVoce> = emptyList(),
     val pagamenti: List<OggiVoce> = emptyList(),
     val isLoading: Boolean = true,
@@ -106,13 +98,9 @@ class OggiViewModel @Inject constructor(
         val endOfToday = endOfTodayMillis()
 
         val daConsegnare = acc.tasks
-            .filter { it.origine == OrigineTask.MANUALE && it.scadenza <= endOfToday }
+            .filter { it.scadenza <= endOfToday }
             .sortedBy { it.scadenza }
             .map { OggiVoce(it.titolo, nome(it.clienteId), it.clienteId) }
-
-        val daContattare = acc.tasks
-            .filter { it.origine == OrigineTask.SUGGERITO }
-            .map { OggiVoce(it.titolo, it.descrizione ?: nome(it.clienteId), it.clienteId) }
 
         val pagamenti = acc.fattureRitardo.map { f ->
             val giorni = ((now - f.dataScadenza) / 86_400_000L).coerceAtLeast(0)
@@ -126,12 +114,9 @@ class OggiViewModel @Inject constructor(
             periodo = per,
             fatturato = acc.incassato + acc.attesi + acc.ritardo,
             incassato = acc.incassato,
-            attesi = acc.attesi,
-            inRitardo = acc.ritardo,
             numClienti = acc.clienti.size,
             oreMese = acc.oreMillis / 3_600_000f,
             obiettivo = 6000.0,
-            daContattare = daContattare,
             daConsegnare = daConsegnare,
             pagamenti = pagamenti,
             isLoading = false,

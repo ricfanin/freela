@@ -15,16 +15,13 @@ import kotlinx.coroutines.flow.stateIn
 
 data class ProgettoUi(
     val id: Long,
-    val clienteId: Long,
     val cliente: String,
     val nome: String,
     val stato: StatoProgetto,
     val percentuale: Int,
     val taskTotali: Int,
-    val taskFatti: Int,
     val oreReali: Float,
     val orePrev: Float,
-    val budget: Double,
     val deadline: Long?,
 )
 
@@ -60,16 +57,13 @@ class ProgettiViewModel @Inject constructor(
             val orePrev = p.oreStimate.toFloat()
             ProgettoUi(
                 id = p.id,
-                clienteId = p.clienteId,
                 cliente = c?.nome ?: "—",
                 nome = p.nome,
                 stato = p.stato,
                 percentuale = perc,
                 taskTotali = tot,
-                taskFatti = fatti,
                 oreReali = orePrev * perc / 100f,
                 orePrev = orePrev,
-                budget = c?.importoPreventivato ?: 0.0,
                 deadline = p.deadline,
             )
         }
