@@ -12,13 +12,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Implementazione di [ReminderScheduler] basata su AlarmManager (PRD FR-10).
- *
- * Usa exact alarm (`setExactAndAllowWhileIdle`) così che la notifica scatti
- * puntuale anche in Doze. Il PendingIntent punta a [TaskReminderReceiver];
- * `requestCode = taskId` garantisce un alarm univoco e cancellabile per task.
- */
+// uso exact alarm così la notifica scatta puntuale anche in doze.
+// il requestCode = taskId mi dà un alarm univoco e cancellabile per ogni task
 @Singleton
 class AlarmReminderScheduler @Inject constructor(
     @ApplicationContext private val context: Context,
@@ -30,7 +25,7 @@ class AlarmReminderScheduler @Inject constructor(
         val am = alarmManager ?: return
         if (task.completato || task.scadenza <= System.currentTimeMillis()) return
 
-        // Su API 31+ gli exact alarm richiedono il permesso: se non concesso, evitiamo il crash.
+        // su api 31+ gli exact alarm vogliono il permesso, se manca ripiego sull'inexact per non crashare
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S &&
             !am.canScheduleExactAlarms()
         ) {

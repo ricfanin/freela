@@ -22,10 +22,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Binding interfaccia → impl locale (NFR-08).
- * In V2: si aggiungerà un modulo alternativo che binda RemoteXxxRepository o HybridXxxRepository.
- */
+// lega le interfacce alle impl locali, in futuro qui si potrà bindare una versione remota
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {

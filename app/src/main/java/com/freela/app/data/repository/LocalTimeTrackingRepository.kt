@@ -14,9 +14,6 @@ class LocalTimeTrackingRepository @Inject constructor(
     private val dao: SessioneLavoroDao,
 ) : TimeTrackingRepository {
 
-    override fun osservaPerCliente(clienteId: Long): Flow<List<SessioneLavoro>> =
-        dao.osservaPerCliente(clienteId).map { list -> list.map { it.toDomain() } }
-
     override fun osservaInCorso(): Flow<SessioneLavoro?> = dao.osservaSessioneInCorso().map { it?.toDomain() }
 
     override fun osservaDurataTotaleMillis(clienteId: Long, now: Long): Flow<Long> =
@@ -28,12 +25,17 @@ class LocalTimeTrackingRepository @Inject constructor(
     override fun osservaDurataPeriodoMillisCliente(clienteId: Long, start: Long, end: Long, now: Long): Flow<Long> =
         dao.osservaDurataPeriodoMillisCliente(clienteId, start, end, now)
 
-    override suspend fun avvia(clienteId: Long, descrizione: String?): Long =
-        dao.insert(SessioneLavoroEntity(clienteId = clienteId, inizio = System.currentTimeMillis(), descrizione = descrizione))
+    override suspend fun avvia(clienteId: Long, progettoId: Long?, descrizione: String?): Long =
+        dao.insert(
+            SessioneLavoroEntity(
+                clienteId = clienteId,
+                progettoId = progettoId,
+                inizio = System.currentTimeMillis(),
+                descrizione = descrizione,
+            ),
+        )
 
     override suspend fun ferma(sessioneId: Long) = dao.chiudi(sessioneId, System.currentTimeMillis())
 
     override suspend fun aggiungiManuale(s: SessioneLavoro): Long = dao.insert(s.copy(inserimentoManuale = true).toEntity())
-
-    override suspend fun elimina(sessioneId: Long) = dao.delete(sessioneId)
 }

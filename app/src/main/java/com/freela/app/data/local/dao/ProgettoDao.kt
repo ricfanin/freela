@@ -20,9 +20,6 @@ interface ProgettoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(progetto: ProgettoEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(items: List<ProgettoEntity>)
-
     @Update
     suspend fun update(progetto: ProgettoEntity)
 

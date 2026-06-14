@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.freela.app.domain.repository.SettingsRepository
@@ -25,8 +24,6 @@ class SettingsManager @Inject constructor(
     private object Keys {
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val TEMA = stringPreferencesKey("tema_preferito")
-        val SOGLIA_SENZA_CONTATTO = intPreferencesKey("soglia_senza_contatto_giorni")
-        val SOGLIA_FOLLOW_UP = intPreferencesKey("soglia_follow_up_preventivo_giorni")
         val NOTIF_SCADENZE = booleanPreferencesKey("notif_scadenze_fatture")
         val NOTIF_PROMEMORIA = booleanPreferencesKey("notif_promemoria_clienti")
         val NOTIF_RIEPILOGO = booleanPreferencesKey("notif_riepilogo_giornaliero")
@@ -43,12 +40,6 @@ class SettingsManager @Inject constructor(
             prefs[Keys.TEMA]?.let { runCatching { TemaPreferito.valueOf(it) }.getOrNull() }
                 ?: TemaPreferito.SISTEMA
         }
-
-    override val giorniSenzaContatto: Flow<Int> =
-        context.dataStore.data.map { it[Keys.SOGLIA_SENZA_CONTATTO] ?: 14 }
-
-    override val giorniFollowUpPreventivo: Flow<Int> =
-        context.dataStore.data.map { it[Keys.SOGLIA_FOLLOW_UP] ?: 5 }
 
     override val notifScadenzeFatture: Flow<Boolean> =
         context.dataStore.data.map { it[Keys.NOTIF_SCADENZE] ?: true }
@@ -82,14 +73,6 @@ class SettingsManager @Inject constructor(
 
     override suspend fun impostaTema(tema: TemaPreferito) {
         context.dataStore.edit { it[Keys.TEMA] = tema.name }
-    }
-
-    override suspend fun impostaSogliaSenzaContatto(giorni: Int) {
-        context.dataStore.edit { it[Keys.SOGLIA_SENZA_CONTATTO] = giorni }
-    }
-
-    override suspend fun impostaSogliaFollowUp(giorni: Int) {
-        context.dataStore.edit { it[Keys.SOGLIA_FOLLOW_UP] = giorni }
     }
 
     override suspend fun impostaNotifScadenzeFatture(attiva: Boolean) {

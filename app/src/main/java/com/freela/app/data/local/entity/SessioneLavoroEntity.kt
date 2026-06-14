@@ -14,12 +14,19 @@ import androidx.room.PrimaryKey
             childColumns = ["clienteId"],
             onDelete = ForeignKey.CASCADE,
         ),
+        ForeignKey(
+            entity = ProgettoEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["progettoId"],
+            onDelete = ForeignKey.SET_NULL,
+        ),
     ],
-    indices = [Index("clienteId"), Index("inizio")],
+    indices = [Index("clienteId"), Index("progettoId"), Index("inizio")],
 )
 data class SessioneLavoroEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val clienteId: Long,
+    val progettoId: Long? = null,
     val inizio: Long,
     val fine: Long? = null,
     val descrizione: String? = null,

@@ -16,12 +16,8 @@ import kotlinx.coroutines.withContext
 
 data class Coordinate(val latitudine: Double, val longitudine: Double)
 
-/**
- * Wrapper su FusedLocationProviderClient + Geocoder per il tag GPS dei meeting (PRD FR-15).
- *
- * Il chiamante deve aver già ottenuto il permesso ACCESS_FINE_LOCATION a runtime (NFR-11):
- * qui si assume concesso ([SuppressLint] giustificato dal controllo a monte nella UI).
- */
+// wrapper su FusedLocationProviderClient + Geocoder per il tag gps dei meeting.
+// il permesso ACCESS_FINE_LOCATION va già chiesto a monte nella ui, qui si assume concesso
 @Singleton
 class LocationProvider @Inject constructor(
     @ApplicationContext private val context: Context,

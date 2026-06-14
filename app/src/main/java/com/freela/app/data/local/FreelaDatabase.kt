@@ -6,7 +6,6 @@ import androidx.room.TypeConverters
 import com.freela.app.data.local.converter.EnumConverters
 import com.freela.app.data.local.dao.ClienteDao
 import com.freela.app.data.local.dao.FatturaDao
-import com.freela.app.data.local.dao.FileAllegatoDao
 import com.freela.app.data.local.dao.InterazioneDao
 import com.freela.app.data.local.dao.PreventivoDao
 import com.freela.app.data.local.dao.ProgettoDao
@@ -16,7 +15,6 @@ import com.freela.app.data.local.dao.TaskDao
 import com.freela.app.data.local.entity.ClienteEntity
 import com.freela.app.data.local.entity.ClienteTagCrossRef
 import com.freela.app.data.local.entity.FatturaEntity
-import com.freela.app.data.local.entity.FileAllegatoEntity
 import com.freela.app.data.local.entity.InterazioneEntity
 import com.freela.app.data.local.entity.PreventivoEntity
 import com.freela.app.data.local.entity.ProgettoEntity
@@ -34,10 +32,9 @@ import com.freela.app.data.local.entity.TaskEntity
         SessioneLavoroEntity::class,
         PreventivoEntity::class,
         FatturaEntity::class,
-        FileAllegatoEntity::class,
         ProgettoEntity::class,
     ],
-    version = 3,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(EnumConverters::class)
@@ -49,7 +46,6 @@ abstract class FreelaDatabase : RoomDatabase() {
     abstract fun sessioneLavoroDao(): SessioneLavoroDao
     abstract fun preventivoDao(): PreventivoDao
     abstract fun fatturaDao(): FatturaDao
-    abstract fun fileAllegatoDao(): FileAllegatoDao
     abstract fun progettoDao(): ProgettoDao
 
     companion object {

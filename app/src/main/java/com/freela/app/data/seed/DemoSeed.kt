@@ -3,14 +3,9 @@ package com.freela.app.data.seed
 import com.freela.app.domain.model.FasePipeline
 import com.freela.app.domain.model.TipoInterazione
 
-/**
- * Dataset demo unico dell'app. Popola il database con un portfolio clienti realistico e coerente:
- * le fasi pipeline, le ore lavorate, i progetti e le fatture sono allineati fra loro
- * (es. un cliente in attesa di pagamento ha una fattura scaduta non pagata; un cliente
- * ricorrente ha fatture già saldate).
- *
- * I `localId` sono identificatori interni al payload, mappati ai veri DB id dal [SeedDataSource].
- */
+// dati demo dell'app, tenuti coerenti tra loro: fasi, ore, progetti e fatture combaciano
+// (es. cliente in attesa di pagamento = fattura scaduta non pagata).
+// i localId sono interni al payload e vengono mappati ai veri id del db al momento del seed
 data class ClientePayload(
     val localId: Int,
     val nome: String,
@@ -47,7 +42,6 @@ data class SeedPayload(
     val clienti: List<ClientePayload>,
     val taskOggi: List<TaskPayload>,
     val taskSettimana: List<TaskPayload>,
-    val taskSuggeriti: List<TaskPayload>,
     val fatture: List<FatturaPayload>,
 )
 
@@ -113,10 +107,6 @@ object DemoSeed {
             TaskPayload("Inviare contratto firmato", clienteLocalId = 7, giorniInAvanti = 3),
             TaskPayload("Mood-board v2", clienteLocalId = 2, giorniInAvanti = 4),
             TaskPayload("Consegna materiali finali", clienteLocalId = 8, giorniInAvanti = 2),
-        ),
-        taskSuggeriti = listOf(
-            TaskPayload("Sollecito preventivo a Olivia", clienteLocalId = 2),
-            TaskPayload("Carlo senza contatto: invia un messaggio", clienteLocalId = 4),
         ),
         fatture = listOf(
             // Studio Dentale Rosa · lavoro consegnato, in attesa di pagamento (scaduta)

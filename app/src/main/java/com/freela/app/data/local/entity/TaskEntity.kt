@@ -4,7 +4,6 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.Priorita
 
 @Entity(
@@ -28,5 +27,4 @@ data class TaskEntity(
     val priorita: Priorita = Priorita.MEDIA,
     val completato: Boolean = false,
     val dataCompletamento: Long? = null,
-    val origine: OrigineTask = OrigineTask.MANUALE,
 )

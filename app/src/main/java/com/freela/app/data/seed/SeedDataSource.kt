@@ -11,7 +11,6 @@ import com.freela.app.data.local.entity.SessioneLavoroEntity
 import com.freela.app.data.local.entity.TagEntity
 import com.freela.app.data.local.entity.TaskEntity
 import com.freela.app.domain.model.FasePipeline
-import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.StatoFattura
 import com.freela.app.domain.model.StatoProgetto
@@ -21,18 +20,22 @@ import javax.inject.Singleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/**
- * Carica nel database il dataset demo unico dell'app ([DemoSeed]).
- * Wipe completo + insert atomico in transazione.
- */
+// carica i dati demo nel db: wipe completo + insert atomico in transazione
 @Singleton
 class SeedDataSource @Inject constructor(
     private val db: FreelaDatabase,
 ) {
 
-    /** Svuota tutte le tabelle. Usato dal seed e dal logout (reset completo). */
+    // svuota tutte le tabelle, lo usano sia il seed che il logout
     suspend fun clear() = withContext(Dispatchers.IO) {
         db.withTransaction { wipe() }
+    }
+
+    // ripopola i dati demo solo se il db è vuoto.
+    // serve dopo una migrazione distruttiva: il db si azzera ma l'onboarding risulta già fatto,
+    // quindi seed() non verrebbe più richiamato
+    suspend fun seedIfEmpty() = withContext(Dispatchers.IO) {
+        if (db.clienteDao().count() == 0) seed()
     }
 
     suspend fun seed() = withContext(Dispatchers.IO) {
@@ -41,11 +44,9 @@ class SeedDataSource @Inject constructor(
         db.withTransaction {
             wipe()
 
-            // Tag unici
             val tagNomi = payload.clienti.map { it.tag }.toSet()
             val tagIds = tagNomi.associateWith { db.tagDao().upsert(it) }
 
-            // Clienti
             val clientiIds = HashMap<Int, Long>()
             payload.clienti.forEach { c ->
                 val entity = ClienteEntity(
@@ -67,7 +68,6 @@ class SeedDataSource @Inject constructor(
                 }
             }
 
-            // Interazioni di esempio (1 per cliente: ultima call/meeting)
             payload.clienti.forEach { c ->
                 val cid = clientiIds[c.localId] ?: return@forEach
                 val daysAgo = c.giorniDallUltimaInterazione
@@ -83,7 +83,6 @@ class SeedDataSource @Inject constructor(
                 )
             }
 
-            // Task "Oggi"
             payload.taskOggi.forEach { t ->
                 val cid = clientiIds[t.clienteLocalId]
                 db.taskDao().insert(
@@ -92,24 +91,9 @@ class SeedDataSource @Inject constructor(
                         clienteId = cid,
                         scadenza = startOfTodayPlusHours(t.oraOpzionale ?: 18),
                         priorita = if (t.urgente) Priorita.ALTA else Priorita.MEDIA,
-                        origine = OrigineTask.MANUALE,
                     )
                 )
             }
-            // Task "Suggeriti" (PRD FR-12, generati a runtime in V1 dal seed)
-            payload.taskSuggeriti.forEach { t ->
-                val cid = clientiIds[t.clienteLocalId]
-                db.taskDao().insert(
-                    TaskEntity(
-                        titolo = t.titolo,
-                        clienteId = cid,
-                        scadenza = now() + daysToMillis(2),
-                        priorita = Priorita.MEDIA,
-                        origine = OrigineTask.SUGGERITO,
-                    )
-                )
-            }
-            // Task "Settimana"
             payload.taskSettimana.forEach { t ->
                 val cid = clientiIds[t.clienteLocalId]
                 db.taskDao().insert(
@@ -118,12 +102,11 @@ class SeedDataSource @Inject constructor(
                         clienteId = cid,
                         scadenza = now() + daysToMillis(t.giorniInAvanti),
                         priorita = Priorita.MEDIA,
-                        origine = OrigineTask.MANUALE,
                     )
                 )
             }
 
-            // Fatture (numero generato sull'anno corrente, es. "2026-024")
+            // numero fattura sull'anno corrente, tipo "2026-024"
             val anno = currentYear()
             payload.fatture.forEach { f ->
                 val cid = clientiIds[f.clienteLocalId] ?: return@forEach
@@ -145,7 +128,6 @@ class SeedDataSource @Inject constructor(
                 )
             }
 
-            // Progetti (uno per cliente con budget preventivato)
             payload.clienti.filter { it.budget != null }.forEach { c ->
                 val cid = clientiIds[c.localId] ?: return@forEach
                 val stato = when (c.stage) {
@@ -166,7 +148,6 @@ class SeedDataSource @Inject constructor(
                 )
             }
 
-            // Sessioni lavoro (per giocare il time tracking)
             payload.clienti.filter { it.oreReali > 0f }.forEach { c ->
                 val cid = clientiIds[c.localId] ?: return@forEach
                 val durationMillis = (c.oreReali * 60f * 60f * 1000f).toLong()
@@ -183,10 +164,8 @@ class SeedDataSource @Inject constructor(
         }
     }
 
-    /**
-     * Svuota tutte le tabelle. CASCADE elimina interazioni/task/sessioni/fatture/preventivi/allegati/progetti
-     * legati ai clienti. Da invocare dentro una transazione.
-     */
+    // svuota le tabelle, va chiamata dentro una transazione.
+    // il cascade dei clienti si porta dietro interazioni/task/sessioni/fatture/preventivi/allegati/progetti
     private suspend fun wipe() {
         db.progettoDao().cancellaTutti()
         db.fatturaDao().cancellaTutte()

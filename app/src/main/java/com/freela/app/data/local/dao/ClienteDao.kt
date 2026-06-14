@@ -18,6 +18,9 @@ interface ClienteDao {
     @Query("SELECT * FROM clienti ORDER BY nome ASC")
     fun osservaTutti(): Flow<List<ClienteEntity>>
 
+    @Query("SELECT COUNT(*) FROM clienti")
+    suspend fun count(): Int
+
     @Transaction
     @Query("SELECT * FROM clienti ORDER BY nome ASC")
     fun osservaTuttiConTags(): Flow<List<ClienteWithTags>>
@@ -25,9 +28,6 @@ interface ClienteDao {
     @Transaction
     @Query("SELECT * FROM clienti WHERE id = :id LIMIT 1")
     fun osservaConTags(id: Long): Flow<ClienteWithTags?>
-
-    @Query("SELECT * FROM clienti WHERE id = :id LIMIT 1")
-    suspend fun byId(id: Long): ClienteEntity?
 
     @Transaction
     @Query("""
@@ -47,9 +47,6 @@ interface ClienteDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(cliente: ClienteEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(clienti: List<ClienteEntity>): List<Long>
-
     @Update
     suspend fun update(cliente: ClienteEntity)
 
@@ -65,7 +62,6 @@ interface ClienteDao {
     @Query("DELETE FROM clienti")
     suspend fun cancellaTutti()
 
-    // ---- Cross-ref tag ----
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTagCrossRef(ref: ClienteTagCrossRef)
 

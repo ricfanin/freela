@@ -9,7 +9,6 @@ import com.freela.app.data.mapper.toDomain
 import com.freela.app.data.mapper.toEntity
 import com.freela.app.domain.model.Cliente
 import com.freela.app.domain.model.FasePipeline
-import com.freela.app.domain.model.Tag
 import com.freela.app.domain.repository.ClienteRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
@@ -29,9 +28,6 @@ class LocalClienteRepository @Inject constructor(
 
     override fun cerca(query: String): Flow<List<Cliente>> =
         clienteDao.cercaConTags(query).map { list -> list.map { it.toDomain() } }
-
-    override fun osservaTags(): Flow<List<Tag>> =
-        tagDao.osservaTutti().map { list -> list.map { it.toDomain() } }
 
     override suspend fun crea(cliente: Cliente, tags: List<String>): Long = db.withTransaction {
         val id = clienteDao.insert(cliente.toEntity())

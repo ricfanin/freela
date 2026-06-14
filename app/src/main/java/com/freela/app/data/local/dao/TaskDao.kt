@@ -17,25 +17,11 @@ interface TaskDao {
     @Query("SELECT * FROM task WHERE completato = 0 ORDER BY scadenza ASC")
     fun osservaAperti(): Flow<List<TaskEntity>>
 
-    @Query("""
-        SELECT * FROM task
-        WHERE completato = 0
-          AND scadenza BETWEEN :startMillis AND :endMillis
-        ORDER BY scadenza ASC
-    """)
-    fun osservaInIntervallo(startMillis: Long, endMillis: Long): Flow<List<TaskEntity>>
-
-    @Query("SELECT * FROM task WHERE clienteId = :clienteId AND completato = 0 ORDER BY scadenza ASC")
-    fun osservaApertiPerCliente(clienteId: Long): Flow<List<TaskEntity>>
-
     @Query("SELECT * FROM task WHERE clienteId = :clienteId AND completato = 0 ORDER BY scadenza ASC LIMIT 1")
     fun osservaProssimoPerCliente(clienteId: Long): Flow<TaskEntity?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(task: TaskEntity): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(items: List<TaskEntity>)
 
     @Update
     suspend fun update(task: TaskEntity)

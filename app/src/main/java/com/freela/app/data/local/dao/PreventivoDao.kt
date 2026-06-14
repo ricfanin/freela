@@ -14,17 +14,11 @@ interface PreventivoDao {
     @Query("SELECT * FROM preventivi ORDER BY dataInvio DESC")
     fun osservaTutti(): Flow<List<PreventivoEntity>>
 
-    @Query("SELECT * FROM preventivi WHERE clienteId = :clienteId ORDER BY dataInvio DESC")
-    fun osservaPerCliente(clienteId: Long): Flow<List<PreventivoEntity>>
-
     @Query("SELECT * FROM preventivi WHERE stato IN (:stati) ORDER BY dataInvio DESC")
     fun osservaPerStati(stati: List<StatoPreventivo>): Flow<List<PreventivoEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(p: PreventivoEntity): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(items: List<PreventivoEntity>)
 
     @Query("UPDATE preventivi SET stato = :stato WHERE id = :id")
     suspend fun aggiornaStato(id: Long, stato: StatoPreventivo)

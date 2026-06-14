@@ -2,17 +2,13 @@ package com.freela.app.data.local.converter
 
 import androidx.room.TypeConverter
 import com.freela.app.domain.model.FasePipeline
-import com.freela.app.domain.model.OrigineTask
 import com.freela.app.domain.model.Priorita
 import com.freela.app.domain.model.StatoFattura
 import com.freela.app.domain.model.StatoPreventivo
 import com.freela.app.domain.model.StatoProgetto
 import com.freela.app.domain.model.TipoInterazione
 
-/**
- * Tutti i converter sono enum→String. Più verboso di un converter generico
- * ma esplicito e robusto a renames degli enum value.
- */
+// converter enum->string uno per uno: più verboso ma esplicito e regge bene i rename degli enum
 class EnumConverters {
 
     @TypeConverter fun fromFase(v: FasePipeline): String = v.name
@@ -23,9 +19,6 @@ class EnumConverters {
 
     @TypeConverter fun fromPriorita(v: Priorita): String = v.name
     @TypeConverter fun toPriorita(s: String): Priorita = Priorita.valueOf(s)
-
-    @TypeConverter fun fromOrigine(v: OrigineTask): String = v.name
-    @TypeConverter fun toOrigine(s: String): OrigineTask = OrigineTask.valueOf(s)
 
     @TypeConverter fun fromStatoPreventivo(v: StatoPreventivo): String = v.name
     @TypeConverter fun toStatoPreventivo(s: String): StatoPreventivo = StatoPreventivo.valueOf(s)

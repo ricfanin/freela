@@ -17,7 +17,6 @@ class LocalFinanzeRepository @Inject constructor(
     private val preventivoDao: PreventivoDao,
 ) : FinanzeRepository {
 
-    // -------- Fatture --------
     override fun osservaFatture(): Flow<List<Fattura>> =
         fatturaDao.osservaTutte().map { list -> list.map { it.toDomain() } }
 
@@ -26,9 +25,6 @@ class LocalFinanzeRepository @Inject constructor(
 
     override fun osservaFattureInRitardo(now: Long): Flow<List<Fattura>> =
         fatturaDao.osservaInRitardo(now).map { list -> list.map { it.toDomain() } }
-
-    override fun osservaFattureNonPagate(): Flow<List<Fattura>> =
-        fatturaDao.osservaNonPagate().map { list -> list.map { it.toDomain() } }
 
     override fun osservaIncassatoPeriodo(start: Long, end: Long): Flow<Double> =
         fatturaDao.osservaIncassatoNelPeriodo(start, end)
@@ -44,16 +40,12 @@ class LocalFinanzeRepository @Inject constructor(
 
     override suspend fun eliminaFattura(fatturaId: Long) = fatturaDao.delete(fatturaId)
 
-    // -------- Preventivi --------
     override fun osservaPreventivi(): Flow<List<Preventivo>> =
         preventivoDao.osservaTutti().map { list -> list.map { it.toDomain() } }
 
     override fun osservaPreventiviAperti(): Flow<List<Preventivo>> = preventivoDao
         .osservaPerStati(listOf(StatoPreventivo.INVIATO, StatoPreventivo.ACCETTATO))
         .map { list -> list.map { it.toDomain() } }
-
-    override fun osservaPreventiviPerCliente(clienteId: Long): Flow<List<Preventivo>> =
-        preventivoDao.osservaPerCliente(clienteId).map { list -> list.map { it.toDomain() } }
 
     override suspend fun creaPreventivo(p: Preventivo): Long = preventivoDao.insert(p.toEntity())
 

@@ -10,12 +10,6 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface SessioneLavoroDao {
 
-    @Query("SELECT * FROM sessioni_lavoro ORDER BY inizio DESC")
-    fun osservaTutte(): Flow<List<SessioneLavoroEntity>>
-
-    @Query("SELECT * FROM sessioni_lavoro WHERE clienteId = :clienteId ORDER BY inizio DESC")
-    fun osservaPerCliente(clienteId: Long): Flow<List<SessioneLavoroEntity>>
-
     @Query("""
         SELECT IFNULL(SUM(IFNULL(fine, :now) - inizio), 0)
         FROM sessioni_lavoro WHERE clienteId = :clienteId
@@ -42,14 +36,8 @@ interface SessioneLavoroDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(s: SessioneLavoroEntity): Long
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(items: List<SessioneLavoroEntity>)
-
     @Query("UPDATE sessioni_lavoro SET fine = :ora WHERE id = :id")
     suspend fun chiudi(id: Long, ora: Long)
-
-    @Query("DELETE FROM sessioni_lavoro WHERE id = :id")
-    suspend fun delete(id: Long)
 
     @Query("DELETE FROM sessioni_lavoro")
     suspend fun cancellaTutte()

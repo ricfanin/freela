@@ -19,15 +19,12 @@ class LocalTaskRepository @Inject constructor(
 
     override fun osservaAperti(): Flow<List<Task>> = dao.osservaAperti().map { list -> list.map { it.toDomain() } }
 
-    override fun osservaInIntervallo(startMillis: Long, endMillis: Long): Flow<List<Task>> =
-        dao.osservaInIntervallo(startMillis, endMillis).map { list -> list.map { it.toDomain() } }
-
     override fun osservaProssimoPerCliente(clienteId: Long): Flow<Task?> =
         dao.osservaProssimoPerCliente(clienteId).map { it?.toDomain() }
 
     override suspend fun crea(task: Task): Long {
         val id = dao.insert(task.toEntity())
-        // Arma il reminder (FR-10). No-op se completato o scadenza passata.
+        // arma il reminder, non fa niente se il task è completato o scaduto
         scheduler.schedula(task.copy(id = id))
         return id
     }
