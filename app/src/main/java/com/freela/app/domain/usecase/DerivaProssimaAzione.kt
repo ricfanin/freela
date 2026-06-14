@@ -5,9 +5,7 @@ import com.freela.app.domain.repository.TaskRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-/**
- * Per la riga "Prossima azione" sulla scheda cliente: prossimo task non completato.
- */
+// prossimo task non completato, mostrato nella riga "prossima azione" del cliente
 class DerivaProssimaAzione @Inject constructor(
     private val taskRepository: TaskRepository,
 ) {

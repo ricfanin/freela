@@ -1,6 +1,6 @@
 package com.freela.app.domain.model
 
-enum class StatoPreventivo { INVIATO, ACCETTATO, RIFIUTATO, SCADUTO }
+enum class StatoPreventivo { INVIATO, ACCETTATO, RIFIUTATO }
 
 data class Preventivo(
     val id: Long = 0,

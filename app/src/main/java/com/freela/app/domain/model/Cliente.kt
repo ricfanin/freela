@@ -1,6 +1,5 @@
 package com.freela.app.domain.model
 
-/** Modello di dominio Cliente (PRD §9.1). Indipendente da Room. */
 data class Cliente(
     val id: Long = 0,
     val nome: String,

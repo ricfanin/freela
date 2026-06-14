@@ -3,10 +3,7 @@ package com.freela.app.domain.model
 import androidx.annotation.StringRes
 import com.freela.app.R
 
-/**
- * Dieci fasi della pipeline (PRD FR-05).
- * Ordine = ordine canonico mostrato in tutte le UI (kanban, ribbon, list).
- */
+// l'ordine qui è quello mostrato ovunque nelle ui (kanban, ribbon, liste)
 enum class FasePipeline(
     val ordine: Int,
     @StringRes val labelRes: Int,

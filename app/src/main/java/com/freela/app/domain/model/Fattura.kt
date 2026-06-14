@@ -1,9 +1,9 @@
 package com.freela.app.domain.model
 
-/** Stato persistente in DB (PRD §9.1 Fattura). */
+// stato salvato in db
 enum class StatoFattura { EMESSA, PAGATA }
 
-/** Stato derivato a runtime (PRD FR-22) — include IN_RITARDO. */
+// stato calcolato a runtime, aggiunge IN_RITARDO
 enum class StatoFatturaUi { EMESSA, PAGATA, IN_RITARDO }
 
 data class Fattura(
@@ -16,7 +16,6 @@ data class Fattura(
     val dataPagamento: Long? = null,
     val stato: StatoFattura = StatoFattura.EMESSA,
 ) {
-    /** Calcolo runtime di IN_RITARDO. */
     fun statoUi(now: Long = System.currentTimeMillis()): StatoFatturaUi = when {
         stato == StatoFattura.PAGATA -> StatoFatturaUi.PAGATA
         dataScadenza < now -> StatoFatturaUi.IN_RITARDO

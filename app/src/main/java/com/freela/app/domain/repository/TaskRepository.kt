@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface TaskRepository {
     fun osservaTutti(): Flow<List<Task>>
     fun osservaAperti(): Flow<List<Task>>
-    fun osservaInIntervallo(startMillis: Long, endMillis: Long): Flow<List<Task>>
     fun osservaProssimoPerCliente(clienteId: Long): Flow<Task?>
     suspend fun crea(task: Task): Long
     suspend fun aggiorna(task: Task)
