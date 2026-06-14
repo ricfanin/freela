@@ -5,21 +5,14 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.freela.app.domain.model.FasePipeline
 
-/**
- * Token "fuori MD3" del Design System Freela Stile C "Living".
- * Acceduti via [LocalFreelaTokens] dentro [FreelaTheme].
- */
+// token fuori dallo standard md3, si leggono via LocalFreelaTokens dentro FreelaTheme
 @Immutable
 data class FreelaTokens(
     val bg: Color,
     val surface: Color,
     val surfaceLow: Color,
-    val surfaceHi: Color,
-    val tonalBand: Color,
     val ink: Color,
     val muted: Color,
     val faint: Color,
@@ -34,27 +27,12 @@ data class FreelaTokens(
     val warning: Color,
     val danger: Color,
     val typeExtras: FreelaTypeExtras,
-    val spacing: FreelaSpacing,
-)
-
-@Immutable
-data class FreelaSpacing(
-    val screenPadCompact: Dp = 16.dp,
-    val screenPad: Dp = 22.dp,
-    val screenPadSpacious: Dp = 26.dp,
-    val cardPad: Dp = 16.dp,
-    val cardPadSpacious: Dp = 22.dp,
-    val gap: Dp = 12.dp,
-    val gapSmall: Dp = 8.dp,
-    val gapLarge: Dp = 18.dp,
 )
 
 internal val LightFreelaTokens = FreelaTokens(
     bg = LightBg,
     surface = LightSurface,
     surfaceLow = LightSurfaceLow,
-    surfaceHi = LightSurfaceHi,
-    tonalBand = LightTonalBand,
     ink = LightInk,
     muted = LightMuted,
     faint = LightFaint,
@@ -69,15 +47,12 @@ internal val LightFreelaTokens = FreelaTokens(
     warning = LightWarning,
     danger = LightDanger,
     typeExtras = DefaultFreelaTypeExtras,
-    spacing = FreelaSpacing(),
 )
 
 internal val DarkFreelaTokens = FreelaTokens(
     bg = DarkBg,
     surface = DarkSurface,
     surfaceLow = DarkSurfaceLow,
-    surfaceHi = DarkSurfaceHi,
-    tonalBand = DarkTonalBand,
     ink = DarkInk,
     muted = DarkMuted,
     faint = DarkFaint,
@@ -92,7 +67,6 @@ internal val DarkFreelaTokens = FreelaTokens(
     warning = DarkWarning,
     danger = DarkDanger,
     typeExtras = DefaultFreelaTypeExtras,
-    spacing = FreelaSpacing(),
 )
 
 val LocalFreelaTokens = compositionLocalOf { LightFreelaTokens }
@@ -104,9 +78,7 @@ object Freela {
         get() = LocalFreelaTokens.current
 }
 
-/**
- * Stage color map (PRD FR-05). Usato da pipeline kanban, chip stage, dot lista clienti.
- */
+// colore per ogni fase, usato da pipeline, chip stage e dot lista clienti
 @Composable
 @ReadOnlyComposable
 fun stageColor(stage: FasePipeline): Color = when (stage) {

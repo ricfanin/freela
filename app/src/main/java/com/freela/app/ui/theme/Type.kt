@@ -36,14 +36,12 @@ val JetBrainsMono: FontFamily = FontFamily(
     GoogleFontFont(googleFont = jetbrainsMonoGoogle, fontProvider = provider, weight = FontWeight.Bold),
 )
 
-// Fallback fallback (caso fonts non scaricabili offline al primo avvio).
+// fallback se al primo avvio i font non si scaricano offline
 val ManropeWithFallback = Manrope
 val MonoWithFallback = JetBrainsMono
 
-// Token tracking del design (default -0.014em ≈ ~-0.2sp su 14sp; uso em-like via letterSpacing in sp negative).
 private const val DEFAULT_TRACKING = -0.014f
 
-// MD3 Typography mapping (vedi piano §Tipografia).
 val FreelaTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = ManropeWithFallback,
@@ -132,15 +130,13 @@ val FreelaTypography = Typography(
     ),
 )
 
-// =========================================================
-// Token tipografici extra non MD3 (StatTile, BigNumber, Timer hero)
-// =========================================================
+// stili tipografici extra fuori da md3
 data class FreelaTypeExtras(
-    val monoCap: TextStyle,       // 11sp 700 uppercase JBM (label sezione/badge)
-    val numberStat: TextStyle,    // 28sp 600 Manrope tnum (StatTile/BigNumber value)
-    val displayNum: TextStyle,    // 44sp 500 Manrope tnum (Finanze hero, ecc.)
-    val timerHero: TextStyle,     // 78sp 300 Manrope tnum (Timer screen)
-    val monoMeta: TextStyle,      // 11.5sp JBM tnum (timestamp, ID fattura)
+    val monoCap: TextStyle,       // label sezione/badge
+    val numberStat: TextStyle,    // valore di StatTile/BigNumber
+    val displayNum: TextStyle,    // hero numerica tipo Finanze
+    val timerHero: TextStyle,     // timer della schermata tracking
+    val monoMeta: TextStyle,      // timestamp, id fattura
 )
 
 val DefaultFreelaTypeExtras = FreelaTypeExtras(

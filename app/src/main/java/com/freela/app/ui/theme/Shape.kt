@@ -7,10 +7,9 @@ import androidx.compose.ui.unit.dp
 val FreelaShapes = Shapes(
     extraSmall = RoundedCornerShape(8.dp),
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(18.dp),  // default card (radius del design Stile C)
-    large = RoundedCornerShape(26.dp),   // hero card (radiusLg)
+    medium = RoundedCornerShape(18.dp),  // card di default
+    large = RoundedCornerShape(26.dp),   // hero card
     extraLarge = RoundedCornerShape(32.dp),
 )
 
-// Pill: usare RoundedCornerShape(50) o CircleShape inline nei componenti.
 val PillShape = RoundedCornerShape(50)
