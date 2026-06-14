@@ -21,8 +21,7 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
-    // POST_NOTIFICATIONS (runtime da Android 13, NFR-12) viene richiesto in modo
-    // contestualizzato nello step "Notifiche" dell'onboarding (OnboardingScreen).
+    // il permesso notifiche lo chiedo nello step notifiche dell'onboarding, non qui
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

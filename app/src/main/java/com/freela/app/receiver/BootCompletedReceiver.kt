@@ -12,14 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-/**
- * Riarma i reminder dopo il riavvio del dispositivo (PRD FR-11, NFR-16).
- *
- * Gli alarm di AlarmManager non sopravvivono al reboot: qui rileggiamo i task
- * aperti con scadenza futura e li rischeduliamo.
- *
- * Su alcuni vendor (Xiaomi, Huawei) l'autostart è limitata: documentato nel PRD §12 rischi.
- */
+// gli alarm non sopravvivono al reboot, quindi qui rileggo i task aperti futuri e li
+// rischedulo. nota: su alcuni vendor (xiaomi, huawei) l'autostart è limitata
 @AndroidEntryPoint
 class BootCompletedReceiver : BroadcastReceiver() {
 

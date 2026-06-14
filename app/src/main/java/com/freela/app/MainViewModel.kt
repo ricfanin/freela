@@ -10,10 +10,8 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 
-/**
- * Espone la preferenza di tema a livello di Activity, così da pilotare [com.freela.app.ui.theme.FreelaTheme]
- * prima che venga composto il NavHost. DataStore è reattivo: al cambio tema dalle impostazioni la UI ricompone.
- */
+// tengo il tema a livello di activity per applicarlo prima del navhost, e siccome
+// datastore è reattivo al cambio dalle impostazioni la ui ricompone da sola
 @HiltViewModel
 class MainViewModel @Inject constructor(
     settings: SettingsRepository,

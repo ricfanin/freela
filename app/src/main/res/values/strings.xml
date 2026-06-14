@@ -134,10 +134,8 @@
     <string name="oggi_stat_in_ritardo">In ritardo</string>
     <string name="oggi_stat_attesi">Attesi</string>
     <string name="oggi_stat_ore_settimana">Ore sett.</string>
-    <string name="oggi_section_contattare">Da contattare</string>
     <string name="oggi_section_consegnare">Da consegnare</string>
     <string name="oggi_section_pagamenti">Pagamenti</string>
-    <string name="oggi_suggestion_label">Suggerimento</string>
     <string name="oggi_suggestion_yes">Sì, scrivi messaggio</string>
     <string name="oggi_suggestion_later">Più tardi</string>
 
@@ -198,12 +196,9 @@
     <string name="task_subtitle">%1$d aperti · %2$d urgenti</string>
     <string name="task_filter_all">Tutti</string>
     <string name="task_filter_urgenti">Urgenti</string>
-    <string name="task_filter_suggeriti">Suggeriti</string>
     <string name="task_filter_senza_cliente">Senza cliente</string>
     <string name="task_section_oggi">Oggi</string>
     <string name="task_section_settimana">Questa settimana</string>
-    <string name="task_section_suggeriti">Suggeriti</string>
-    <string name="task_badge_suggerito">suggerito</string>
     <string name="task_priority_alta">priorità alta</string>
     <!-- Task · creazione e modifica -->
     <string name="task_nuovo_titolo">Nuovo task</string>
@@ -243,6 +238,8 @@
     <string name="timer_annulla">Annulla</string>
     <string name="timer_mostra_meno">Meno</string>
     <string name="timer_nessun_cliente">Nessun cliente selezionato</string>
+    <string name="timer_seleziona_progetto">Seleziona progetto</string>
+    <string name="timer_nessun_progetto">Nessun progetto</string>
 
     <!-- Finanze -->
     <string name="finanze_title">Finanze</string>

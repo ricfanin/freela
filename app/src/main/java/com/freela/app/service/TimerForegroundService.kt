@@ -20,15 +20,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-/**
- * Foreground Service per il timer di time tracking (PRD FR-18, NFR-17).
- *
- * - START: persiste l'avvio della sessione su Room e mostra una notifica persistente
- *   con cronometro sul canale [NotificationHelper.CHANNEL_TIMER].
- * - STOP: chiude la sessione in corso (anche via azione "Stop" della notifica) e si ferma.
- *
- * Il timer continua a girare quando l'app è in background grazie al foreground service.
- */
+// foreground service così il timer continua a girare anche con l'app in background
 @AndroidEntryPoint
 class TimerForegroundService : Service() {
 
@@ -54,13 +46,14 @@ class TimerForegroundService : Service() {
         val clienteId = intent.getLongExtra(EXTRA_CLIENTE_ID, -1L)
         val clienteNome = intent.getStringExtra(EXTRA_CLIENTE_NOME) ?: "Sessione di lavoro"
         val descrizione = intent.getStringExtra(EXTRA_DESCRIZIONE)
+        val progettoId = intent.getLongExtra(EXTRA_PROGETTO_ID, -1L).takeIf { it > 0L }
         val inizio = System.currentTimeMillis()
 
-        // startForeground entro pochi secondi: notifica subito, persistenza in coroutine.
+        // devo chiamare startForeground subito, la persistenza la faccio dopo in coroutine
         startForegroundCompat(buildNotification(clienteNome, inizio))
 
         if (clienteId > 0L) {
-            scope.launch { timeRepo.avvia(clienteId, descrizione) }
+            scope.launch { timeRepo.avvia(clienteId, progettoId, descrizione) }
         }
     }
 
@@ -112,19 +105,25 @@ class TimerForegroundService : Service() {
         const val EXTRA_CLIENTE_ID = "cliente_id"
         const val EXTRA_CLIENTE_NOME = "cliente_nome"
         const val EXTRA_DESCRIZIONE = "descrizione"
+        const val EXTRA_PROGETTO_ID = "progetto_id"
 
-        /** Avvia il timer per il cliente indicato (usa startForegroundService). */
-        fun avvia(context: Context, clienteId: Long, clienteNome: String, descrizione: String? = null) {
+        fun avvia(
+            context: Context,
+            clienteId: Long,
+            clienteNome: String,
+            descrizione: String? = null,
+            progettoId: Long? = null,
+        ) {
             val intent = Intent(context, TimerForegroundService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_CLIENTE_ID, clienteId)
                 putExtra(EXTRA_CLIENTE_NOME, clienteNome)
                 putExtra(EXTRA_DESCRIZIONE, descrizione)
+                putExtra(EXTRA_PROGETTO_ID, progettoId ?: -1L)
             }
             androidx.core.content.ContextCompat.startForegroundService(context, intent)
         }
 
-        /** Ferma il timer in corso. */
         fun ferma(context: Context) {
             val intent = Intent(context, TimerForegroundService::class.java).apply { action = ACTION_STOP }
             androidx.core.content.ContextCompat.startForegroundService(context, intent)

@@ -12,13 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
-/**
- * Receiver per i reminder schedulati via AlarmManager (PRD FR-10).
- *
- * Allo scattare dell'alarm legge il taskId dall'intent, recupera il task e
- * mostra una notifica sul canale CHANNEL_TASK_REMINDER. Se il task nel frattempo
- * è stato completato o eliminato, non notifica nulla.
- */
+// quando scatta l'alarm mostro la notifica del task, ma se nel frattempo è stato
+// completato o cancellato non notifico niente
 @AndroidEntryPoint
 class TaskReminderReceiver : BroadcastReceiver() {
 

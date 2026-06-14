@@ -53,10 +53,7 @@ class NotificationHelper @Inject constructor(
         manager.createNotificationChannels(listOf(taskReminder, paymentReminder, timer))
     }
 
-    /**
-     * Notifica di reminder per un task in scadenza (FR-10). Cliccabile: apre l'app
-     * sulla lista task. L'id notifica coincide col taskId così è aggiornabile/cancellabile.
-     */
+    // uso il taskId come id notifica così posso aggiornarla o cancellarla, e al tap apre la lista task
     fun notificaTaskReminder(taskId: Long, titolo: String, sottotitolo: String?) {
         if (!notificheConsentite()) return
 
@@ -86,7 +83,6 @@ class NotificationHelper @Inject constructor(
         }
     }
 
-    /** Costruisce la notifica persistente del timer di time tracking (FR-18). */
     fun buildTimerNotification(
         titolo: String,
         inizioMillis: Long,
@@ -107,10 +103,6 @@ class NotificationHelper @Inject constructor(
             .addAction(0, context.getString(R.string.timer_action_stop), stopIntent)
             .build()
 
-    fun cancella(notificationId: Int) {
-        NotificationManagerCompat.from(context).cancel(notificationId)
-    }
-
     private fun notificheConsentite(): Boolean =
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
@@ -126,7 +118,6 @@ class NotificationHelper @Inject constructor(
 
         const val TIMER_NOTIFICATION_ID = 1001
 
-        // Extra per deep-link dalla notifica verso MainActivity.
         const val EXTRA_NAV_DESTINATION = "nav_destination"
         const val EXTRA_TASK_ID = "task_id"
         const val NAV_TASK = "task"

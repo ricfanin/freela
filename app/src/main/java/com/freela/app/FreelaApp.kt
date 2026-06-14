@@ -3,15 +3,12 @@ package com.freela.app
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import com.freela.app.data.seed.SeedDataSource
+import com.freela.app.domain.repository.SettingsRepository
 import com.freela.app.domain.repository.TaskRepository
 import com.freela.app.domain.scheduler.ReminderScheduler
 import com.freela.app.notification.NotificationHelper
-import com.freela.app.worker.SuggerimentiWorker
 import dagger.hilt.android.HiltAndroidApp
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,6 +23,8 @@ class FreelaApp : Application(), Configuration.Provider {
     @Inject lateinit var workerFactory: HiltWorkerFactory
     @Inject lateinit var taskRepository: TaskRepository
     @Inject lateinit var reminderScheduler: ReminderScheduler
+    @Inject lateinit var seedDataSource: SeedDataSource
+    @Inject lateinit var settingsRepository: SettingsRepository
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -35,24 +34,22 @@ class FreelaApp : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
         notificationHelper.createChannels()
-        schedulaSuggerimenti()
         riarmaReminderAperti()
+        riseminaSeVuoto()
     }
 
-    /** WorkManager periodico per i suggerimenti di follow-up (PRD FR-12). */
-    private fun schedulaSuggerimenti() {
-        val request = PeriodicWorkRequestBuilder<SuggerimentiWorker>(12, TimeUnit.HOURS).build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            SuggerimentiWorker.UNIQUE_NAME,
-            ExistingPeriodicWorkPolicy.KEEP,
-            request,
-        )
+    // se una migrazione distruttiva ha svuotato il db e l'onboarding era già fatto,
+    // rimetto i dati demo così l'app non resta vuota
+    private fun riseminaSeVuoto() {
+        appScope.launch {
+            if (settingsRepository.onboardingCompleted.first()) {
+                seedDataSource.seedIfEmpty()
+            }
+        }
     }
 
-    /**
-     * Riarma i reminder dei task aperti con scadenza futura all'avvio (FR-10/11).
-     * Copre i task creati prima dell'installazione degli alarm (es. dati seed).
-     */
+    // riarmo gli alarm dei task aperti futuri all'avvio, serve a coprire quelli creati
+    // prima che gli alarm fossero impostati (es. dati seed)
     private fun riarmaReminderAperti() {
         appScope.launch {
             val now = System.currentTimeMillis()
